@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#1f4e78" />
+  <title>JRT Ops Dashboard</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1 id="appTitle">JRT Ops Dashboard</h1>
+          <p>Read-only operational dashboard แยกจาก RealStock หลัก</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="refreshDashboardBtn" type="button">Admin Refresh</button>
+          <div id="dataStatus" class="pill pill-neutral">Loading...</div>
+        </div>
+      </div>
+      <div id="metaBadges" class="meta-badges"></div>
+      <div id="warnings" class="warning-strip"></div>
+      <div id="adminNotice" class="admin-notice"></div>
+    </header>
+
+    <main class="main-grid">
+      <section class="section-card">
+        <h2>KPI Snapshot</h2>
+        <p class="section-note">ตัวเลขหลักจาก current snapshot + order view + activity logs</p>
+        <div id="kpiGrid" class="kpi-grid"></div>
+      </section>
+
+      <section class="section-card">
+        <h2>แนวโน้ม Count / Issue / Receive รายวัน</h2>
+        <p class="section-note">ดึงจาก Count_Log / Withdraw_Log / Receive_Log</p>
+        <div id="trendChart"></div>
+      </section>
+
+      <section class="section-card">
+        <h2>ภาพรวมตามโซน</h2>
+        <p class="section-note">สรุปตาม basis zone จาก Current_Stock_View</p>
+        <div id="zoneSummary"></div>
+      </section>
+
+      <div class="two-col">
+        <section class="section-card">
+          <h2>รายการที่ควรสั่งมากที่สุด</h2>
+          <p class="section-note">Top suggested order qty จาก Order_View</p>
+          <div id="topOrderTable"></div>
+        </section>
+
+        <section class="section-card">
+          <h2>รายการที่ต้องจับตา</h2>
+          <p class="section-note">LOW / NO_COUNT_YET / ORDER / ZERO</p>
+          <div id="watchlistTable"></div>
+        </section>
+      </div>
+
+      <div class="two-col">
+        <section class="section-card">
+          <h2>Top Issue 30 วัน</h2>
+          <div id="topIssueTable"></div>
+        </section>
+
+        <section class="section-card">
+          <h2>Top Receive 30 วัน</h2>
+          <div id="topReceiveTable"></div>
+        </section>
+      </div>
+
+      <section class="section-card">
+        <h2>Data Quality Summary</h2>
+        <p class="section-note">เช็กความพร้อมของข้อมูลก่อนใช้งานจริง</p>
+        <div id="dataQualityTable"></div>
+      </section>
+    </main>
+
+    <div class="footer-note">
+      JRT Ops Dashboard v1.0 • read-only frontend • fallback data included
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('SW register failed', error));
+    }
+  </script>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
