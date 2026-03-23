@@ -5,8 +5,178 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#1f4e78" />
   <title>JRT Ops Dashboard</title>
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="stylesheet" href="./assets/styles.css" />
+  <style>
+
+:root {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fbff;
+  --text: #122033;
+  --muted: #5c6b7a;
+  --line: #dce6f2;
+  --brand: #1f4e78;
+  --brand-2: #2e7db7;
+  --danger: #b42318;
+  --warn: #b54708;
+  --ok: #027a48;
+  --info: #175cd3;
+  --shadow: 0 12px 30px rgba(15, 35, 60, 0.08);
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+body { min-height: 100vh; }
+
+.app-shell { width: min(1440px, calc(100% - 32px)); margin: 20px auto 48px; }
+.topbar {
+  background: linear-gradient(135deg, var(--brand), #14334f);
+  color: #fff;
+  padding: 22px 24px;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+.topbar-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.topbar h1 { margin: 0; font-size: 32px; }
+.topbar p { margin: 4px 0 0; color: rgba(255,255,255,0.84); }
+.topbar-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+  background: #fff;
+  color: var(--brand);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.6; cursor: wait; }
+
+.meta-badges, .warning-strip {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px;
+}
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 999px; padding: 6px 10px; font-size: 13px; font-weight: 700;
+}
+.pill-ok { background: #e7f8ef; color: var(--ok); }
+.pill-danger, .is-danger { background: #fde8e8; color: var(--danger); }
+.pill-warn, .is-warn { background: #fff3db; color: var(--warn); }
+.pill-neutral, .is-info { background: #eef4ff; color: var(--info); }
+
+.warning-item {
+  background: #fff8eb; color: #7a4504; border: 1px solid #f2d395;
+  padding: 10px 14px; border-radius: 14px; font-size: 14px;
+}
+
+.main-grid {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+.section-card h2 { margin: 0 0 6px; font-size: 20px; }
+.section-card .section-note { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 12px;
+}
+.kpi-card {
+  background: linear-gradient(180deg, var(--surface-soft), #fff);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+.kpi-label { font-size: 13px; color: var(--muted); min-height: 34px; }
+.kpi-value { font-size: 34px; font-weight: 800; margin-top: 8px; }
+.kpi-meta { margin-top: 6px; color: var(--muted); font-size: 12px; }
+
+.two-col, .three-col {
+  display: grid;
+  gap: 18px;
+}
+.two-col { grid-template-columns: 1.2fr 1fr; }
+.three-col { grid-template-columns: repeat(3, 1fr); }
+
+.chart-svg {
+  width: 100%;
+  background: #fcfdff;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+.chart-grid { stroke: #cfdae8; stroke-width: 1; }
+.chart-grid-soft { stroke: #eef3f8; stroke-width: 1; }
+.chart-axis-text { fill: #61748a; font-size: 12px; }
+.chart-legend {
+  display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;
+}
+.chart-legend-item { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; }
+.chart-legend-swatch { width: 12px; height: 12px; border-radius: 999px; display: inline-block; }
+
+.zone-bar-row + .zone-bar-row { margin-top: 14px; }
+.zone-bar-head, .zone-bar-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.zone-bar-track {
+  width: 100%; height: 12px; border-radius: 999px; overflow: hidden;
+  background: #edf3f8; margin: 8px 0;
+}
+.zone-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+.muted { color: var(--muted); font-size: 13px; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.data-table th, .data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+.data-table th {
+  background: #f7faff;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.data-table tbody tr:hover { background: #fafcff; }
+
+.footer-note {
+  text-align: center;
+  color: var(--muted);
+  margin-top: 20px;
+  font-size: 13px;
+}
+.admin-notice {
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .two-col, .three-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .app-shell { width: min(100%, calc(100% - 20px)); margin: 10px auto 30px; }
+  .topbar { padding: 18px; border-radius: 18px; }
+  .topbar h1 { font-size: 26px; }
+  .section-card { padding: 16px; }
+  .kpi-value { font-size: 28px; }
+}
+
+</style>
 </head>
 <body>
   <div class="app-shell">
@@ -84,10 +254,1671 @@
   </div>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('SW register failed', error));
+window.__JRT_DASHBOARD_BOOTSTRAP__ = {
+  "ok": true,
+  "appVersion": "1.0.0",
+  "generatedAt": "2026-03-17T11:05:43.994367+07:00",
+  "dataAsOf": "2026-03-14",
+  "meta": {
+    "appVersion": "1.0.0",
+    "generatedAt": "2026-03-17T11:05:43.994367+07:00",
+    "dataAsOf": "2026-03-14",
+    "latestSnapshotDate": "2026-03-14",
+    "latestActivityDate": "2026-03-14",
+    "sourceOfTruth": {
+      "catalog": "Master_Items",
+      "currentSnapshot": "Current_Stock_View",
+      "ordering": "Order_View",
+      "activityLogs": [
+        "Count_Log",
+        "Withdraw_Log",
+        "Receive_Log"
+      ]
+    },
+    "sourceWorkbook": "JRT_WEB_STOCK (2).xlsx",
+    "warnings": [
+      "NO_COUNT_YET items: 417",
+      "Missing unit rows: 2",
+      "Current workbook contains limited activity history; refresh after connecting live Google Sheets."
+    ]
+  },
+  "kpis": [
+    {
+      "key": "active_items",
+      "label": "จำนวนสินค้า active",
+      "value": 445,
+      "unit": "items",
+      "asOf": "2026-03-14",
+      "note": "จาก Master_Items.active = TRUE"
+    },
+    {
+      "key": "tracked_items",
+      "label": "จำนวนรายการใน stock snapshot",
+      "value": 445,
+      "unit": "items",
+      "asOf": "2026-03-14",
+      "note": "ใช้ Current_Stock_View เป็น current snapshot"
+    },
+    {
+      "key": "low_stock_items",
+      "label": "จำนวนรายการ LOW",
+      "value": 3,
+      "unit": "items",
+      "asOf": "2026-03-14",
+      "note": "status = LOW"
+    },
+    {
+      "key": "no_count_yet_items",
+      "label": "จำนวนรายการยังไม่เคยนับ",
+      "value": 417,
+      "unit": "items",
+      "asOf": "2026-03-14",
+      "note": "status = NO_COUNT_YET"
+    },
+    {
+      "key": "ok_items",
+      "label": "จำนวนรายการสถานะ OK",
+      "value": 25,
+      "unit": "items",
+      "asOf": "2026-03-14",
+      "note": "status = OK"
+    },
+    {
+      "key": "order_candidates",
+      "label": "จำนวนรายการแนะนำให้สั่ง",
+      "value": 100,
+      "unit": "items",
+      "asOf": "2026-03-14",
+      "note": "Order_View.suggested_order_qty > 0"
+    },
+    {
+      "key": "suggested_order_qty_total",
+      "label": "ยอดแนะนำสั่งรวม",
+      "value": 225.0,
+      "unit": "qty",
+      "asOf": "2026-03-14",
+      "note": "รวม suggested_order_qty"
+    },
+    {
+      "key": "count_events_30d",
+      "label": "จำนวนรายการ count 30 วัน",
+      "value": 37,
+      "unit": "events",
+      "asOf": "2026-03-14",
+      "note": "ใช้ Count_Log"
+    },
+    {
+      "key": "issue_events_30d",
+      "label": "จำนวนรายการ issue 30 วัน",
+      "value": 16,
+      "unit": "events",
+      "asOf": "2026-03-14",
+      "note": "ใช้ Withdraw_Log"
+    },
+    {
+      "key": "receive_events_30d",
+      "label": "จำนวนรายการ receive 30 วัน",
+      "value": 9,
+      "unit": "events",
+      "asOf": "2026-03-14",
+      "note": "ใช้ Receive_Log"
     }
+  ],
+  "dailyTrends": [
+    {
+      "date": "2026-03-12",
+      "countEvents": 33,
+      "countQty": 178.0,
+      "issueEvents": 9,
+      "issueQty": 9.0,
+      "receiveEvents": 2,
+      "receiveQty": 20.0
+    },
+    {
+      "date": "2026-03-14",
+      "countEvents": 4,
+      "countQty": 12.0,
+      "issueEvents": 7,
+      "issueQty": 9.0,
+      "receiveEvents": 7,
+      "receiveQty": 19.0
+    }
+  ],
+  "zoneSummary": [
+    {
+      "zone": "ครัว",
+      "itemCount": 159,
+      "currentStockTotal": 100.0,
+      "lowItems": 0,
+      "noCountYetItems": 145,
+      "okItems": 14,
+      "targetParTotal": 0.0,
+      "centralMinTotal": 1450.0
+    },
+    {
+      "zone": "ห้องสต๊อก",
+      "itemCount": 100,
+      "currentStockTotal": -8.0,
+      "lowItems": 0,
+      "noCountYetItems": 100,
+      "okItems": 0,
+      "targetParTotal": 0.0,
+      "centralMinTotal": 931.0
+    },
+    {
+      "zone": "สต๊อกของสด/ผัก",
+      "itemCount": 92,
+      "currentStockTotal": 31.0,
+      "lowItems": 3,
+      "noCountYetItems": 88,
+      "okItems": 1,
+      "targetParTotal": 239.0,
+      "centralMinTotal": 0.0
+    },
+    {
+      "zone": "หน้าร้าน",
+      "itemCount": 52,
+      "currentStockTotal": 0.0,
+      "lowItems": 0,
+      "noCountYetItems": 52,
+      "okItems": 0,
+      "targetParTotal": 0.0,
+      "centralMinTotal": 706.0
+    },
+    {
+      "zone": "สต๊อกบาร์น้ำ",
+      "itemCount": 42,
+      "currentStockTotal": 41.0,
+      "lowItems": 0,
+      "noCountYetItems": 32,
+      "okItems": 10,
+      "targetParTotal": 0.0,
+      "centralMinTotal": 695.0
+    }
+  ],
+  "topOrder": [
+    {
+      "rank": 1,
+      "itemKey": "kitchen-phlaim-079",
+      "itemName": "มะนาว",
+      "brand": "วงเวียนใหญ่",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 30.0,
+      "targetPar": 30.0,
+      "suggestedOrderQty": 30.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 2,
+      "itemKey": "kitchen-enuue-satw-001",
+      "itemName": "หมูสุกี้",
+      "brand": "-",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 3.0,
+      "thresholdStock": 20.0,
+      "targetPar": 20.0,
+      "suggestedOrderQty": 17.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 3,
+      "itemKey": "kitchen-enuue-satw-002",
+      "itemName": "เนื้อสุกี้",
+      "brand": "-",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 3.0,
+      "thresholdStock": 20.0,
+      "targetPar": 20.0,
+      "suggestedOrderQty": 17.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 4,
+      "itemKey": "kitchen-enuue-satw-003",
+      "itemName": "ไก่สุกี้",
+      "brand": "-",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 3.0,
+      "thresholdStock": 20.0,
+      "targetPar": 20.0,
+      "suggestedOrderQty": 17.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 5,
+      "itemKey": "kitchen-aahaarthael-018",
+      "itemName": "เนื้อปูก้อน",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 5.0,
+      "targetPar": 5.0,
+      "suggestedOrderQty": 5.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 6,
+      "itemKey": "kitchen-ekhruue-ngain-014",
+      "itemName": "ไส้หมู",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 5.0,
+      "thresholdStock": 10.0,
+      "targetPar": 10.0,
+      "suggestedOrderQty": 5.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 7,
+      "itemKey": "kitchen-aahaarthael-017",
+      "itemName": "กุ้งทอดมัน",
+      "brand": "เจ้รอ",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 3.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 8,
+      "itemKey": "kitchen-aahaarthael-015",
+      "itemName": "กุ้งสุกี้",
+      "brand": "เจ้เล็ก เจ้รอ",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 3.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 9,
+      "itemKey": "kitchen-aahaarthael-016",
+      "itemName": "กุ้งแชบ๊วย",
+      "brand": "เจ้เล็ก",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 3.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 10,
+      "itemKey": "kitchen-aahaarthael-019",
+      "itemName": "ปลากระพง / ตัว",
+      "brand": "ทะเลสามารถ",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 3.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 11,
+      "itemKey": "kitchen-aahaarthael-021",
+      "itemName": "ปลาดุกย่าง",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 3.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 12,
+      "itemKey": "kitchen-phaksd-032",
+      "itemName": "ผักกาดขาว",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 3.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 13,
+      "itemKey": "kitchen-phaksd-031",
+      "itemName": "ผักบุ้ง",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 3.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 14,
+      "itemKey": "kitchen-enuue-satw-006",
+      "itemName": "เปเดตุ็น",
+      "brand": "-",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 2.0,
+      "thresholdStock": 5.0,
+      "targetPar": 5.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 15,
+      "itemKey": "kitchen-enuue-satw-007",
+      "itemName": "แพ๊ะตุ็น",
+      "brand": "-",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 2.0,
+      "thresholdStock": 5.0,
+      "targetPar": 5.0,
+      "suggestedOrderQty": 3.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 16,
+      "itemKey": "kitchen-phaksd-040",
+      "itemName": "ขึ้นฉ่าย",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 17,
+      "itemKey": "kitchen-phaksd-030",
+      "itemName": "คะน้า",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 18,
+      "itemKey": "kitchen-ehd-hn-aim-kh-ngd-ng-084",
+      "itemName": "ตั้งไฉ่",
+      "brand": "ตราอาเหลียง",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 19,
+      "itemKey": "kitchen-phaksd-041",
+      "itemName": "ต้นหอม",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 20,
+      "itemKey": "kitchen-phaksd-033",
+      "itemName": "ผักกาดหอม",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 21,
+      "itemKey": "kitchen-ehd-hn-aim-kh-ngd-ng-085",
+      "itemName": "มะนาวดอง",
+      "brand": "ส. เปงง้วน",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 22,
+      "itemKey": "kitchen-phlaim-078",
+      "itemName": "มะพร้าวอ่อน",
+      "brand": "วงเวียนใหญ่",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 23,
+      "itemKey": "kitchen-phlaim-076",
+      "itemName": "มะม่วง",
+      "brand": "วงเวียนใหญ่",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 24,
+      "itemKey": "kitchen-enuue-satw-008",
+      "itemName": "มันหมู",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    },
+    {
+      "rank": 25,
+      "itemKey": "kitchen-ehd-hn-aim-kh-ngd-ng-091",
+      "itemName": "หน่อไม้ทะเล",
+      "brand": "ตรา Ideal gold",
+      "stockType": "สต๊อกของสด/ผัก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "currentStock": 0.0,
+      "thresholdStock": 2.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "scheduleGroup": "ในครัว"
+    }
+  ],
+  "watchlist": [
+    {
+      "rank": 1,
+      "itemKey": "kitchen-ekhruue-ngain-014",
+      "itemName": "ไส้หมู",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "LOW",
+      "reason": "LOW | ORDER",
+      "currentStock": 5.0,
+      "centralMinStock": 0.0,
+      "targetPar": 10.0,
+      "suggestedOrderQty": 5.0,
+      "latestCountTs": "2026-03-14T07:02:39.228Z"
+    },
+    {
+      "rank": 2,
+      "itemKey": "kitchen-ekhruue-ngain-013",
+      "itemName": "หัวใจ",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "LOW",
+      "reason": "LOW | ORDER",
+      "currentStock": 1.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 1.0,
+      "latestCountTs": "2026-03-14T07:02:39.228Z"
+    },
+    {
+      "rank": 3,
+      "itemKey": "kitchen-ekhruue-ngain-012",
+      "itemName": "เซี้ยงจี๊",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "LOW",
+      "reason": "LOW",
+      "currentStock": 2.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 0.0,
+      "latestCountTs": "2026-03-14T07:02:39.228Z"
+    },
+    {
+      "rank": 4,
+      "itemKey": "kitchen-phlaim-079",
+      "itemName": "มะนาว",
+      "brand": "วงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 30.0,
+      "suggestedOrderQty": 30.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 5,
+      "itemKey": "kitchen-aahaarthael-018",
+      "itemName": "เนื้อปูก้อน",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 5.0,
+      "suggestedOrderQty": 5.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 6,
+      "itemKey": "kitchen-aahaarthael-017",
+      "itemName": "กุ้งทอดมัน",
+      "brand": "เจ้รอ",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 7,
+      "itemKey": "kitchen-aahaarthael-015",
+      "itemName": "กุ้งสุกี้",
+      "brand": "เจ้เล็ก เจ้รอ",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 8,
+      "itemKey": "kitchen-aahaarthael-016",
+      "itemName": "กุ้งแชบ๊วย",
+      "brand": "เจ้เล็ก",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 9,
+      "itemKey": "kitchen-aahaarthael-019",
+      "itemName": "ปลากระพง / ตัว",
+      "brand": "ทะเลสามารถ",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 10,
+      "itemKey": "kitchen-aahaarthael-021",
+      "itemName": "ปลาดุกย่าง",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 11,
+      "itemKey": "kitchen-phaksd-032",
+      "itemName": "ผักกาดขาว",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 12,
+      "itemKey": "kitchen-phaksd-031",
+      "itemName": "ผักบุ้ง",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 3.0,
+      "suggestedOrderQty": 3.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 13,
+      "itemKey": "kitchen-phaksd-040",
+      "itemName": "ขึ้นฉ่าย",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 14,
+      "itemKey": "kitchen-phaksd-030",
+      "itemName": "คะน้า",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 15,
+      "itemKey": "kitchen-ehd-hn-aim-kh-ngd-ng-084",
+      "itemName": "ตั้งไฉ่",
+      "brand": "ตราอาเหลียง",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 16,
+      "itemKey": "kitchen-phaksd-041",
+      "itemName": "ต้นหอม",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 17,
+      "itemKey": "kitchen-phaksd-033",
+      "itemName": "ผักกาดหอม",
+      "brand": "วงเวียนใหญ่/ปากคลองตลาด/เจ้จู",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 18,
+      "itemKey": "kitchen-ehd-hn-aim-kh-ngd-ng-085",
+      "itemName": "มะนาวดอง",
+      "brand": "ส. เปงง้วน",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 19,
+      "itemKey": "kitchen-phlaim-078",
+      "itemName": "มะพร้าวอ่อน",
+      "brand": "วงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 20,
+      "itemKey": "kitchen-phlaim-076",
+      "itemName": "มะม่วง",
+      "brand": "วงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 21,
+      "itemKey": "kitchen-enuue-satw-008",
+      "itemName": "มันหมู",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 22,
+      "itemKey": "kitchen-ehd-hn-aim-kh-ngd-ng-091",
+      "itemName": "หน่อไม้ทะเล",
+      "brand": "ตรา Ideal gold",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 23,
+      "itemKey": "kitchen-ehd-hn-aim-kh-ngd-ng-092",
+      "itemName": "หน่อไม้ทะเล",
+      "brand": "ตรา Ocean Blue",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 24,
+      "itemKey": "kitchen-aahaarthael-022",
+      "itemName": "หมึกสด",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    },
+    {
+      "rank": 25,
+      "itemKey": "kitchen-aahaarthael-023",
+      "itemName": "หมึกแช่",
+      "brand": "มหาชัย",
+      "basisZone": "สต๊อกของสด/ผัก",
+      "status": "NO_COUNT_YET",
+      "reason": "NO_COUNT_YET | ORDER | ZERO",
+      "currentStock": 0.0,
+      "centralMinStock": 0.0,
+      "targetPar": 2.0,
+      "suggestedOrderQty": 2.0,
+      "latestCountTs": ""
+    }
+  ],
+  "topIssue30d": [
+    {
+      "rank": 1,
+      "itemKey": "bar-ekhruue-ngduuem-008",
+      "itemName": "นํ้าแดง",
+      "brand": "มิรันด้า",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 2.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 2,
+      "itemKey": "bar-ekhruue-ngduuem-004",
+      "itemName": "เปเปซี่ ใหญ่",
+      "brand": "Pepsi",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 2.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 3,
+      "itemKey": "bar-ekhruue-ngduuem-011",
+      "itemName": "M-150",
+      "brand": "M-150",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 4,
+      "itemKey": "stock-kh-ngaehng-039",
+      "itemName": "กระเพาะปลา",
+      "brand": "ร้านเฮียโบ้",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "ถุง",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 5,
+      "itemKey": "bar-ekhruue-ngduuem-001",
+      "itemName": "นํ้ากลาง",
+      "brand": "สิงห์",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 6,
+      "itemKey": "bar-ekhruue-ngduuem-002",
+      "itemName": "นํ้าใหญ่",
+      "brand": "สิงห์",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 7,
+      "itemKey": "bar-ekhruue-ngduuem-012",
+      "itemName": "สปอนเซอร์",
+      "brand": "Sponser",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 8,
+      "itemKey": "stock-kh-ngaehng-044",
+      "itemName": "หน่อไม้ทะเล",
+      "brand": "ตรา Ideal gold",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "กระปอง",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 9,
+      "itemKey": "stock-kh-ngaehng-045",
+      "itemName": "หน่อไม้ทะเล",
+      "brand": "ตรา Ocean Blue",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "กระปอง",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 10,
+      "itemKey": "stock-kh-ngaehng-040",
+      "itemName": "เกล็ดขนมปง",
+      "brand": "ตราดาว",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "ถุง",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 11,
+      "itemKey": "stock-kh-ngaehng-042",
+      "itemName": "เต้าเจี้ยวบด",
+      "brand": "ตราง่วนเชียง",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "ถัง",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 12,
+      "itemKey": "bar-ekhruue-ngduuem-016",
+      "itemName": "เบียร์สิงห์",
+      "brand": "สิงห์",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 13,
+      "itemKey": "stock-kh-ngaehng-038",
+      "itemName": "เม็ดมะม่วง",
+      "brand": "ร้านเฮียโบ้",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "โล",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 14,
+      "itemKey": "stock-kh-ngaehng-037",
+      "itemName": "เห็ดหอมแห้ง",
+      "brand": "ร้านเฮียโบ้",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "โล",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 15,
+      "itemKey": "stock-kh-ngaehng-041",
+      "itemName": "แป๊งมันสําปะหลัง",
+      "brand": "ตราปลามังกร",
+      "stockZone": "ห้องสต๊อก",
+      "unit": "ถุง",
+      "totalQty": 1.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    }
+  ],
+  "topReceive30d": [
+    {
+      "rank": 1,
+      "itemKey": "bar-ekhruue-ngduuem-001",
+      "itemName": "นํ้ากลาง",
+      "brand": "สิงห์",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 10.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 2,
+      "itemKey": "bar-ekhruue-ngduuem-002",
+      "itemName": "นํ้าใหญ่",
+      "brand": "สิงห์",
+      "stockZone": "สต๊อกบาร์น้ำ",
+      "unit": "ขวด",
+      "totalQty": 10.0,
+      "events": 1,
+      "latestDate": "2026-03-12"
+    },
+    {
+      "rank": 3,
+      "itemKey": "kitchen-enuue-satw-004",
+      "itemName": "หมูสับ",
+      "brand": "ตลาดวงเวียนใหญ่",
+      "stockZone": "สต๊อกของสด/ผัก",
+      "unit": "โล",
+      "totalQty": 3.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 4,
+      "itemKey": "kitchen-enuue-satw-001",
+      "itemName": "หมูสุกี้",
+      "brand": "-",
+      "stockZone": "สต๊อกของสด/ผัก",
+      "unit": "แพ็ค",
+      "totalQty": 3.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 5,
+      "itemKey": "kitchen-enuue-satw-002",
+      "itemName": "เนื้อสุกี้",
+      "brand": "-",
+      "stockZone": "สต๊อกของสด/ผัก",
+      "unit": "แพ็ค",
+      "totalQty": 3.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 6,
+      "itemKey": "kitchen-enuue-satw-005",
+      "itemName": "ไก่สับ",
+      "brand": "-",
+      "stockZone": "สต๊อกของสด/ผัก",
+      "unit": "โล",
+      "totalQty": 3.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 7,
+      "itemKey": "kitchen-enuue-satw-003",
+      "itemName": "ไก่สุกี้",
+      "brand": "-",
+      "stockZone": "สต๊อกของสด/ผัก",
+      "unit": "แพ็ค",
+      "totalQty": 3.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 8,
+      "itemKey": "kitchen-enuue-satw-006",
+      "itemName": "เปเดตุ็น",
+      "brand": "-",
+      "stockZone": "สต๊อกของสด/ผัก",
+      "unit": "ถุง",
+      "totalQty": 2.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    },
+    {
+      "rank": 9,
+      "itemKey": "kitchen-enuue-satw-007",
+      "itemName": "แพ๊ะตุ็น",
+      "brand": "-",
+      "stockZone": "สต๊อกของสด/ผัก",
+      "unit": "ถุง",
+      "totalQty": 2.0,
+      "events": 1,
+      "latestDate": "2026-03-14"
+    }
+  ],
+  "dataQuality": [
+    {
+      "group": "keys",
+      "checkKey": "master_dup_item_key",
+      "status": "OK",
+      "metricValue": 0,
+      "detail": "Master_Items.item_key duplicate rows"
+    },
+    {
+      "group": "keys",
+      "checkKey": "stock_dup_item_key",
+      "status": "OK",
+      "metricValue": 0,
+      "detail": "Current_Stock_View.item_key duplicate rows"
+    },
+    {
+      "group": "keys",
+      "checkKey": "order_dup_item_key",
+      "status": "OK",
+      "metricValue": 0,
+      "detail": "Order_View.item_key duplicate rows"
+    },
+    {
+      "group": "mapping",
+      "checkKey": "stock_missing_master",
+      "status": "OK",
+      "metricValue": 0,
+      "detail": "Current_Stock_View item_key not found in Master_Items"
+    },
+    {
+      "group": "mapping",
+      "checkKey": "order_missing_master",
+      "status": "OK",
+      "metricValue": 0,
+      "detail": "Order_View item_key not found in Master_Items"
+    },
+    {
+      "group": "fields",
+      "checkKey": "master_missing_unit",
+      "status": "REVIEW",
+      "metricValue": 2,
+      "detail": "Master_Items.unit missing"
+    },
+    {
+      "group": "fields",
+      "checkKey": "stock_missing_unit",
+      "status": "REVIEW",
+      "metricValue": 2,
+      "detail": "Current_Stock_View.unit missing"
+    },
+    {
+      "group": "fields",
+      "checkKey": "stock_missing_latest_count",
+      "status": "REVIEW",
+      "metricValue": 417,
+      "detail": "Current_Stock_View.latest_count_ts missing"
+    },
+    {
+      "group": "activity",
+      "checkKey": "count_log_rows",
+      "status": "INFO",
+      "metricValue": 37,
+      "detail": "Count_Log non-empty rows"
+    },
+    {
+      "group": "activity",
+      "checkKey": "withdraw_log_rows",
+      "status": "INFO",
+      "metricValue": 16,
+      "detail": "Withdraw_Log non-empty rows"
+    },
+    {
+      "group": "activity",
+      "checkKey": "receive_log_rows",
+      "status": "INFO",
+      "metricValue": 9,
+      "detail": "Receive_Log non-empty rows"
+    }
+  ]
+};
+
+const APP_CONFIG = {
+  appName: 'JRT Ops Dashboard',
+  version: '1.0.0',
+  api: {
+    // ใส่ Apps Script Web App URL ตอน deploy จริง เช่น:
+    // baseUrl: 'https://script.google.com/macros/s/AKfycb.../exec',
+    baseUrl: 'https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec',
+    adminToken: '',
+    useJsonp: true,
+    timeoutMs: 15000
+  },
+  fallbackDataPath: null,
+  theme: {
+    refreshLabel: 'JRT Ops Dashboard v1.0'
+  }
+};
+
+
+
+function formatNumber(value, digits = 0) {
+  const number = Number(value ?? 0);
+  return new Intl.NumberFormat('th-TH', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  }).format(number);
+}
+
+function formatDate(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('th-TH', {
+    year: 'numeric', month: 'short', day: 'numeric'
+  }).format(date);
+}
+
+function formatDateTime(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('th-TH', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }).format(date);
+}
+
+function createElement(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined && text !== null) el.textContent = text;
+  return el;
+}
+
+function statusClass(status) {
+  return {
+    LOW: 'is-danger',
+    NO_COUNT_YET: 'is-warn',
+    OK: 'is-ok',
+    REVIEW: 'is-warn',
+    INFO: 'is-info'
+  }[status] || 'is-info';
+}
+
+
+
+function clearNode(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+}
+
+function svgEl(name, attrs = {}) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+  Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+  return el;
+}
+
+function createLineChart(container, rows) {
+  clearNode(container);
+  if (!rows?.length) {
+    container.textContent = 'ไม่พบข้อมูล trend';
+    return;
+  }
+  const width = 920;
+  const height = 260;
+  const padding = { top: 20, right: 20, bottom: 36, left: 42 };
+  const labels = rows.map((row) => row.date);
+  const series = [
+    { key: 'countEvents', label: 'Count', color: '#2563eb' },
+    { key: 'issueEvents', label: 'Issue', color: '#dc2626' },
+    { key: 'receiveEvents', label: 'Receive', color: '#059669' }
+  ];
+  const maxValue = Math.max(1, ...series.flatMap((s) => rows.map((r) => Number(r[s.key] || 0))));
+  const chartW = width - padding.left - padding.right;
+  const chartH = height - padding.top - padding.bottom;
+  const stepX = labels.length > 1 ? chartW / (labels.length - 1) : chartW;
+
+  const svg = svgEl('svg', { viewBox: `0 0 ${width} ${height}`, class: 'chart-svg', role: 'img', 'aria-label': 'daily trends chart' });
+
+  for (let i = 0; i < 5; i += 1) {
+    const y = padding.top + (chartH / 4) * i;
+    svg.appendChild(svgEl('line', {
+      x1: padding.left,
+      y1: y,
+      x2: width - padding.right,
+      y2: y,
+      class: 'chart-grid'
+    }));
+    const label = Math.round(maxValue - (maxValue / 4) * i);
+    const text = svgEl('text', { x: 6, y: y + 4, class: 'chart-axis-text' });
+    text.textContent = label;
+    svg.appendChild(text);
+  }
+
+  labels.forEach((label, index) => {
+    const x = padding.left + stepX * index;
+    svg.appendChild(svgEl('line', {
+      x1: x, y1: padding.top, x2: x, y2: height - padding.bottom, class: 'chart-grid-soft'
+    }));
+    const text = svgEl('text', { x, y: height - 12, class: 'chart-axis-text', 'text-anchor': 'middle' });
+    text.textContent = formatDate(label);
+    svg.appendChild(text);
+  });
+
+  series.forEach((serie) => {
+    const points = rows.map((row, index) => {
+      const x = padding.left + stepX * index;
+      const y = padding.top + chartH - (Number(row[serie.key] || 0) / maxValue) * chartH;
+      return { x, y, value: Number(row[serie.key] || 0) };
+    });
+    const d = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+    svg.appendChild(svgEl('path', { d, fill: 'none', stroke: serie.color, 'stroke-width': 3, 'stroke-linecap': 'round' }));
+    points.forEach((point) => {
+      svg.appendChild(svgEl('circle', { cx: point.x, cy: point.y, r: 4, fill: serie.color }));
+    });
+  });
+
+  clearNode(container);
+  container.appendChild(svg);
+
+  const legend = createElement('div', 'chart-legend');
+  series.forEach((serie) => {
+    const item = createElement('div', 'chart-legend-item');
+    const swatch = createElement('span', 'chart-legend-swatch');
+    swatch.style.backgroundColor = serie.color;
+    item.appendChild(swatch);
+    item.appendChild(createElement('span', '', serie.label));
+    legend.appendChild(item);
+  });
+  container.appendChild(legend);
+}
+
+function createZoneBars(container, rows) {
+  clearNode(container);
+  if (!rows?.length) {
+    container.textContent = 'ไม่พบข้อมูลโซน';
+    return;
+  }
+
+  const maxValue = Math.max(1, ...rows.map((row) => Number(row.itemCount || 0)));
+  rows.forEach((row) => {
+    const wrap = createElement('div', 'zone-bar-row');
+    const head = createElement('div', 'zone-bar-head');
+    head.appendChild(createElement('strong', '', row.zone));
+    head.appendChild(createElement('span', 'muted', `${formatNumber(row.itemCount)} items`));
+    wrap.appendChild(head);
+
+    const track = createElement('div', 'zone-bar-track');
+    const fill = createElement('div', 'zone-bar-fill');
+    fill.style.width = `${(Number(row.itemCount || 0) / maxValue) * 100}%`;
+    track.appendChild(fill);
+    wrap.appendChild(track);
+
+    const meta = createElement('div', 'zone-bar-meta');
+    meta.appendChild(createElement('span', `pill ${row.lowItems > 0 ? 'pill-danger' : 'pill-ok'}`, `LOW ${formatNumber(row.lowItems)}`));
+    meta.appendChild(createElement('span', `pill ${row.noCountYetItems > 0 ? 'pill-warn' : 'pill-ok'}`, `NO_COUNT_YET ${formatNumber(row.noCountYetItems)}`));
+    meta.appendChild(createElement('span', 'pill pill-neutral', `Stock ${formatNumber(row.currentStockTotal, 1)}`));
+    wrap.appendChild(meta);
+
+    container.appendChild(wrap);
+  });
+}
+
+function renderTable(container, columns, rows, rowMapper) {
+  clearNode(container);
+  const table = createElement('table', 'data-table');
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  columns.forEach((col) => headerRow.appendChild(createElement('th', '', col)));
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  rows.forEach((row) => tbody.appendChild(rowMapper(row)));
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
+function renderKpis(target, kpis) {
+  clearNode(target);
+  kpis.forEach((kpi) => {
+    const card = createElement('article', 'kpi-card');
+    card.appendChild(createElement('div', 'kpi-label', kpi.label));
+    const value = createElement('div', 'kpi-value', `${formatNumber(kpi.value, Number(kpi.value) % 1 ? 1 : 0)}`);
+    card.appendChild(value);
+    card.appendChild(createElement('div', 'kpi-meta', `${kpi.unit || ''} • as of ${formatDate(kpi.asOf)}`));
+    target.appendChild(card);
+  });
+}
+
+function renderMeta(target, payload) {
+  clearNode(target);
+  const source = payload.__source === 'backend' ? 'LIVE BACKEND' : 'FALLBACK SAMPLE';
+  const sourceBadge = createElement('span', `pill ${payload.__source === 'backend' ? 'pill-ok' : 'pill-warn'}`, source);
+  const dataAsOf = createElement('span', 'pill pill-neutral', `data as of ${formatDate(payload.dataAsOf)}`);
+  const generatedAt = createElement('span', 'pill pill-neutral', `generated ${formatDateTime(payload.generatedAt)}`);
+  target.appendChild(sourceBadge);
+  target.appendChild(dataAsOf);
+  target.appendChild(generatedAt);
+}
+
+function renderWarnings(target, warnings = []) {
+  clearNode(target);
+  warnings.forEach((warning) => {
+    target.appendChild(createElement('div', 'warning-item', warning));
+  });
+}
+
+function renderDailyTrends(target, rows) {
+  createLineChart(target, rows);
+}
+
+function renderZoneSummary(target, rows) {
+  createZoneBars(target, rows);
+}
+
+function renderTopOrder(target, rows) {
+  renderTable(target,
+    ['#', 'สินค้า', 'แบรนด์', 'โซน', 'คงเหลือ', 'Threshold', 'แนะนำสั่ง'],
+    rows,
+    (row) => {
+      const tr = document.createElement('tr');
+      [
+        row.rank,
+        `${row.itemName}`,
+        row.brand || '-',
+        row.basisZone || '-',
+        formatNumber(row.currentStock, 1),
+        formatNumber(row.thresholdStock, 1),
+        formatNumber(row.suggestedOrderQty, 1)
+      ].forEach((value) => tr.appendChild(createElement('td', '', value)));
+      return tr;
+    });
+}
+
+function renderWatchlist(target, rows) {
+  renderTable(target,
+    ['#', 'สินค้า', 'โซน', 'สถานะ', 'เหตุผล', 'คงเหลือ', 'แนะนำสั่ง'],
+    rows,
+    (row) => {
+      const tr = document.createElement('tr');
+      tr.appendChild(createElement('td', '', row.rank));
+      tr.appendChild(createElement('td', '', row.itemName));
+      tr.appendChild(createElement('td', '', row.basisZone || '-'));
+      const statusCell = createElement('td');
+      statusCell.appendChild(createElement('span', `pill ${statusClass(row.status)}`, row.status || '-'));
+      tr.appendChild(statusCell);
+      tr.appendChild(createElement('td', '', row.reason || '-'));
+      tr.appendChild(createElement('td', '', formatNumber(row.currentStock, 1)));
+      tr.appendChild(createElement('td', '', formatNumber(row.suggestedOrderQty, 1)));
+      return tr;
+    });
+}
+
+function renderActivityTables(issueTarget, receiveTarget, issues, receives) {
+  const columns = ['#', 'สินค้า', 'โซน', 'Qty', 'Events', 'ล่าสุด'];
+  const mapper = (row) => {
+    const tr = document.createElement('tr');
+    [row.rank, row.itemName, row.stockZone || '-', formatNumber(row.totalQty, 1), row.events, formatDate(row.latestDate)]
+      .forEach((value) => tr.appendChild(createElement('td', '', value)));
+    return tr;
+  };
+  renderTable(issueTarget, columns, issues, mapper);
+  renderTable(receiveTarget, columns, receives, mapper);
+}
+
+function renderDataQuality(target, rows) {
+  renderTable(target,
+    ['Group', 'Check', 'Status', 'Value', 'Detail'],
+    rows,
+    (row) => {
+      const tr = document.createElement('tr');
+      tr.appendChild(createElement('td', '', row.group));
+      tr.appendChild(createElement('td', '', row.checkKey));
+      const status = createElement('td');
+      status.appendChild(createElement('span', `pill ${statusClass(row.status)}`, row.status));
+      tr.appendChild(status);
+      tr.appendChild(createElement('td', '', formatNumber(row.metricValue, Number(row.metricValue) % 1 ? 1 : 0)));
+      tr.appendChild(createElement('td', '', row.detail));
+      return tr;
+    });
+}
+
+
+
+function jsonpRequest(url, timeoutMs = APP_CONFIG.api.timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `__jrtJsonp_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+    const script = document.createElement('script');
+    const timer = window.setTimeout(() => {
+      cleanup();
+      reject(new Error('JSONP request timeout'));
+    }, timeoutMs);
+
+    function cleanup() {
+      window.clearTimeout(timer);
+      if (script.parentNode) script.parentNode.removeChild(script);
+      try { delete window[callbackName]; } catch (err) { window[callbackName] = undefined; }
+    }
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    const separator = url.includes('?') ? '&' : '?';
+    script.src = `${url}${separator}callback=${callbackName}`;
+    script.async = true;
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('JSONP request failed'));
+    };
+    document.body.appendChild(script);
+  });
+}
+
+async function loadFallbackData() {
+  const response = await fetch(APP_CONFIG.fallbackDataPath, { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`Fallback data load failed: ${response.status}`);
+  }
+  return response.json();
+}
+
+async function fetchDashboardBootstrap() {
+  const { baseUrl, useJsonp } = APP_CONFIG.api;
+  if (!baseUrl) {
+    const payload = await loadFallbackData();
+    payload.__source = 'fallback';
+    return payload;
+  }
+
+  const endpoint = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}action=dashboardBootstrap`;
+  try {
+    if (useJsonp) {
+      const payload = await jsonpRequest(endpoint);
+      payload.__source = 'backend';
+      return payload;
+    }
+    const response = await fetch(endpoint, { method: 'GET', cache: 'no-store' });
+    if (!response.ok) throw new Error(`API ${response.status}`);
+    const payload = await response.json();
+    payload.__source = 'backend';
+    return payload;
+  } catch (error) {
+    console.warn('Backend bootstrap failed, fallback data will be used.', error);
+    const payload = await loadFallbackData();
+    payload.__source = 'fallback';
+    payload.__fallbackReason = error.message;
+    return payload;
+  }
+}
+
+async function triggerAdminRefresh() {
+  const { baseUrl, adminToken, useJsonp } = APP_CONFIG.api;
+  if (!baseUrl) throw new Error('Missing APP_CONFIG.api.baseUrl');
+  const url = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}action=adminRefreshDashboard&token=${encodeURIComponent(adminToken || '')}`;
+  if (useJsonp) {
+    return jsonpRequest(url, 30000);
+  }
+  const response = await fetch(url, { method: 'GET', cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`Refresh failed: ${response.status}`);
+  }
+  return response.json();
+}
+
+
+
+
+const state = {
+  payload: null
+};
+
+function bindEvents() {
+  const refreshBtn = document.getElementById('refreshDashboardBtn');
+  if (!APP_CONFIG.api.baseUrl) {
+    refreshBtn.disabled = true;
+    refreshBtn.title = 'ต้องใส่ Apps Script URL ก่อนใช้ Admin Refresh';
+    return;
+  }
+  refreshBtn.addEventListener('click', async () => {
+    const adminNotice = document.getElementById('adminNotice');
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = 'Refreshing...';
+    try {
+      const result = await triggerAdminRefresh();
+      adminNotice.textContent = result?.message || 'Refresh completed';
+      state.payload = await fetchDashboardBootstrap();
+      render(state.payload);
+    } catch (error) {
+      adminNotice.textContent = `Refresh failed: ${error.message}`;
+    } finally {
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = 'Admin Refresh';
+    }
+  });
+}
+
+function render(payload) {
+  document.getElementById('appTitle').textContent = 'JRT Ops Dashboard';
+  document.getElementById('dataStatus').textContent = payload.__source === 'backend'
+    ? 'Connected to backend'
+    : 'Using fallback sample data';
+
+  renderMeta(document.getElementById('metaBadges'), payload);
+  renderWarnings(document.getElementById('warnings'), payload.meta?.warnings || []);
+  renderKpis(document.getElementById('kpiGrid'), payload.kpis || []);
+  renderDailyTrends(document.getElementById('trendChart'), payload.dailyTrends || []);
+  renderZoneSummary(document.getElementById('zoneSummary'), payload.zoneSummary || []);
+  renderTopOrder(document.getElementById('topOrderTable'), payload.topOrder || []);
+  renderWatchlist(document.getElementById('watchlistTable'), payload.watchlist || []);
+  renderActivityTables(
+    document.getElementById('topIssueTable'),
+    document.getElementById('topReceiveTable'),
+    payload.topIssue30d || [],
+    payload.topReceive30d || []
+  );
+  renderDataQuality(document.getElementById('dataQualityTable'), payload.dataQuality || []);
+}
+
+async function bootstrap() {
+  bindEvents();
+  const status = document.getElementById('dataStatus');
+  status.textContent = 'Loading...';
+  try {
+    const payload = await fetchDashboardBootstrap();
+    state.payload = payload;
+    render(payload);
+  } catch (error) {
+    status.textContent = `Load failed: ${error.message}`;
+    console.error(error);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', bootstrap);
+
   </script>
-  <script type="module" src="./js/app.js"></script>
 </body>
 </html>
