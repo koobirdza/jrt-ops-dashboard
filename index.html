@@ -1,171 +1,21 @@
+
 <!doctype html>
 <html lang="th">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#12304a" />
-  <title>JRT Ops Dashboard v2.0</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2312304a'/%3E%3Cpath fill='white' d='M14 16h36v8H14zm0 14h18v8H14zm22 0h14v8H36zm-22 14h26v8H14z'/%3E%3C/svg%3E" />
-  <style>
-    :root {
-      --bg:#edf4f0; --surface:#ffffff; --surface-soft:#f7fbff; --ink:#102132; --muted:#627489;
-      --line:#d8e3ee; --shadow:0 12px 36px rgba(17,34,51,.08); --radius:22px;
-      --count:#20b45f; --count-soft:#e9fbf0;
-      --issue:#2c6ff0; --issue-soft:#edf3ff;
-      --receive:#ef990d; --receive-soft:#fff5df;
-      --order:#9c41f3; --order-soft:#f4eaff;
-      --danger:#c43222; --danger-soft:#fdeceb;
-      --ok:#067647; --warn:#b54708;
-      --hero:#12304a;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:linear-gradient(180deg,#f1f8f3 0,#eef4f0 220px,#eef4f0 100%);color:var(--ink);font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif}
-    body{min-height:100vh}
-    .app{width:min(1380px,calc(100% - 24px));margin:12px auto 36px}
-    .header{background:linear-gradient(135deg,#12304a,#1e4e78);color:#fff;border-radius:28px;padding:22px 22px 18px;box-shadow:var(--shadow);position:sticky;top:8px;z-index:20}
-    .header-top{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
-    .brand h1{margin:0;font-size:32px;line-height:1.05;font-weight:900;letter-spacing:-.02em}
-    .brand p{margin:8px 0 0;color:rgba(255,255,255,.82);font-size:14px}
-    .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .btn{border:0;border-radius:999px;padding:12px 16px;font-weight:800;cursor:pointer;transition:.18s transform,.18s opacity,.18s background;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-    .btn:hover{transform:translateY(-1px)}
-    .btn-primary{background:#fff;color:#12304a}
-    .btn-secondary{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.18)}
-    .pill-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800}
-    .pill.ok{background:#e8faf0;color:var(--ok)} .pill.info{background:#e9f2ff;color:#175cd3}
-    .pill.warn{background:#fff2dd;color:var(--warn)} .pill.danger{background:#fdecea;color:var(--danger)}
-    .warning-banner{margin-top:14px;display:grid;gap:8px}
-    .warning-item{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);color:#fff;padding:10px 12px;border-radius:14px;font-size:13px}
-    .main{display:grid;gap:18px;margin-top:18px}
-    .action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .action-card{border-radius:20px;padding:16px 16px 14px;box-shadow:var(--shadow);color:#fff;position:relative;overflow:hidden}
-    .action-card::after{content:"";position:absolute;right:-26px;top:-26px;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.11)}
-    .action-card small{display:block;opacity:.86;font-size:12px;font-weight:700;position:relative;z-index:1}
-    .action-card .value{position:relative;z-index:1;font-size:34px;font-weight:900;line-height:1;margin-top:8px}
-    .action-card .title{position:relative;z-index:1;font-size:16px;font-weight:800;margin-top:6px}
-    .tone-count{background:linear-gradient(135deg,#17a84f,#34cd76)}
-    .tone-issue{background:linear-gradient(135deg,#1e63ed,#5790ff)}
-    .tone-receive{background:linear-gradient(135deg,#ee9410,#ffbc3d)}
-    .tone-order{background:linear-gradient(135deg,#8f34f0,#b96eff)}
-    .tone-warn{background:linear-gradient(135deg,#f3a414,#ffcb52)}
-    .section{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 16px}
-    .section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
-    .section h2{margin:0;font-size:22px;line-height:1.15}
-    .section-note{color:var(--muted);font-size:13px;margin:4px 0 0}
-    .section-tag{padding:8px 12px;border-radius:999px;background:#f3f7fc;color:#40607f;font-size:12px;font-weight:800}
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .kpi-card{border:1px solid var(--line);background:linear-gradient(180deg,var(--surface-soft),#fff);border-radius:18px;padding:14px 14px 12px}
-    .kpi-label{font-size:13px;color:var(--muted);min-height:34px}
-    .kpi-value{font-size:30px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-.02em}
-    .kpi-sub{font-size:12px;color:var(--muted);margin-top:8px}
-    .split{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
-    .split-equal{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .chart-wrap{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fbfdff,#fff);padding:12px}
-    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
-    .legend span{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-weight:700}
-    .legend i{width:10px;height:10px;border-radius:999px;display:inline-block}
-    .zone-list{display:grid;gap:12px}
-    .zone-card{padding:14px;border:1px solid var(--line);border-radius:18px;background:#fbfdff}
-    .zone-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-    .zone-name{font-size:18px;font-weight:900}
-    .zone-meta{display:flex;gap:8px;flex-wrap:wrap}
-    .mini-pill{padding:6px 10px;border-radius:999px;background:#eef4fb;font-size:12px;font-weight:800;color:#40607f}
-    .zone-track{height:11px;border-radius:999px;background:#e8eef6;overflow:hidden;margin:10px 0 8px}
-    .zone-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#17a84f,#67d18e)}
-    .table-list{display:grid;gap:12px}
-    .row-card{border:1px solid var(--line);border-radius:18px;padding:14px;background:#fff}
-    .row-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-    .row-title{font-size:18px;font-weight:900;line-height:1.2}
-    .row-sub{color:var(--muted);font-size:13px;margin-top:6px;line-height:1.45}
-    .row-side{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .metric-pill{padding:8px 10px;border-radius:14px;background:#f3f7fc;font-size:12px;font-weight:900;color:#25496b;min-width:88px;text-align:center}
-    .flag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-    .flag{padding:6px 9px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.02em}
-    .flag.low{background:#fdeceb;color:#b42318} .flag.no_count{background:#fff3db;color:#b54708}
-    .flag.order{background:#f1e8ff;color:#7a2fd0} .flag.zero{background:#e8f1ff;color:#175cd3}
-    .health-list{display:grid;gap:10px}
-    .health-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff}
-    .health-title{font-weight:800}
-    .health-note{color:var(--muted);font-size:13px;margin-top:4px}
-    .footer{text-align:center;color:var(--muted);font-size:12px;padding-top:2px}
-    .hide{display:none!important}
-    @media (max-width:1100px) {
-      .action-grid,.kpi-grid{grid-template-columns:repeat(2,1fr)}
-      .split,.split-equal{grid-template-columns:1fr}
-    }
-    @media (max-width:720px) {
-      .app{width:min(100%,calc(100% - 12px));margin:6px auto 20px}
-      .header{padding:16px 14px 14px;border-radius:22px;top:4px}
-      .brand h1{font-size:26px}
-      .brand p{font-size:12px}
-      .header-actions{width:100%;justify-content:space-between}
-      .btn{padding:11px 14px;font-size:13px}
-      .action-grid,.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-      .action-card{padding:14px 12px 12px;border-radius:18px}
-      .action-card .value{font-size:28px}
-      .action-card .title{font-size:14px}
-      .section{padding:14px 14px 12px;border-radius:18px}
-      .section h2{font-size:19px}
-      .kpi-card{padding:12px}
-      .kpi-value{font-size:25px}
-      .row-title{font-size:17px}
-      .row-top{flex-direction:column}
-      .row-side{justify-content:flex-start}
-      .metric-pill{min-width:76px;padding:7px 9px}
-      svg{height:220px!important}
-    }
-    @media (max-width:420px) {
-      .action-grid,.kpi-grid{grid-template-columns:1fr 1fr}
-      .pill{font-size:12px;padding:7px 10px}
-      .header-actions .btn{flex:1 1 calc(50% - 5px)}
-    }
-
-    .adjust-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:18px}
-    .control-card{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fbfdff,#fff);padding:14px}
-    .control-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-    .control-title{font-size:18px;font-weight:900;line-height:1.2}
-    .control-note{font-size:13px;color:var(--muted);margin-top:4px}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .field{display:grid;gap:6px}
-    .field.full{grid-column:1 / -1}
-    .field label{font-size:12px;font-weight:800;color:#40607f}
-    .input,.select,.textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;font:inherit;color:var(--ink);outline:none}
-    .textarea{min-height:86px;resize:vertical}
-    .input:focus,.select:focus,.textarea:focus{border-color:#9eb8d8;box-shadow:0 0 0 4px rgba(30,99,237,.08)}
-    .picker-shell{display:grid;gap:10px}
-    .picker-list{display:grid;gap:8px;max-height:300px;overflow:auto;padding-right:2px}
-    .picker-item{padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;cursor:pointer;transition:.18s ease}
-    .picker-item:hover{transform:translateY(-1px);box-shadow:0 10px 18px rgba(16,42,67,.06)}
-    .picker-item.active{border-color:#4d87ff;background:#eef4ff;box-shadow:0 0 0 3px rgba(77,135,255,.10)}
-    .picker-name{font-weight:900;line-height:1.25}
-    .picker-meta{font-size:12px;color:var(--muted);margin-top:4px}
-    .selected-card{padding:12px;border-radius:14px;background:#f6f9fd;border:1px solid var(--line);display:grid;gap:8px}
-    .selected-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .selected-name{font-size:17px;font-weight:900;line-height:1.2}
-    .selected-meta{font-size:12px;color:var(--muted)}
-    .selected-pills{display:flex;gap:8px;flex-wrap:wrap}
-    .selected-pills .mini-pill{background:#fff;border:1px solid var(--line)}
-    .preview-box{padding:12px;border-radius:14px;background:#0f172a;color:#fff;display:grid;gap:6px}
-    .preview-label{font-size:12px;letter-spacing:.02em;color:#c6d4e8}
-    .preview-value{font-size:24px;font-weight:900;line-height:1}
-    .preview-sub{font-size:13px;color:#d7e1ef}
-    .adjust-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:2px}
-    .adjust-actions .btn{min-width:160px}
-    .mini-status{font-size:12px;color:var(--muted);font-weight:700}
-    .empty-state{padding:12px;border-radius:14px;background:#f8fbff;border:1px dashed #cad7e7;color:var(--muted);font-size:13px}
-    .flag.adjusted{background:#e8f1ff;color:#175cd3}
-    .recent-adjust-note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
-
-  </style>
+  <title>JRT Ops Dashboard v2.2</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2312304a'/%3E%3Cpath fill='white' d='M14 38h18l4-10h14l-4 12c-.7 2.1-2.7 3.5-4.9 3.5H20.5c-2.3 0-4.4-1.5-5.1-3.7L10 20h6l2.3 8H34l2-6h6l-2 6h10v4H36l-2 6H18.1z'/%3E%3C/svg%3E" />
 </head>
 <body>
   <div class="app">
     <header class="header">
       <div class="header-top">
         <div class="brand">
-          <h1>JRT Ops Dashboard v2.1</h1>
-          <p>adjust module v1.0 • mobile-first • admin correction layer • ใช้ชีทเดียวกับ RealStock</p>
+          <h1>JRT Ops Dashboard v2.2</h1>
+          <p>adjust module v1.1 • count compliance module • modular frontend/backend • ใช้ workbook ร่วมกับ RealStock</p>
         </div>
         <div class="header-actions">
           <button id="refreshBtn" class="btn btn-primary" type="button">Admin Refresh</button>
@@ -193,6 +43,52 @@
           <div class="section-tag">Overview</div>
         </div>
         <div id="kpiGrid" class="kpi-grid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>Count Compliance</h2>
+            <div class="section-note">เช็กว่าสินค้าที่ต้องนับทุกวัน/ทุกสัปดาห์ถูกนับเข้ามาครบหรือยัง</div>
+          </div>
+          <div class="section-tag">Discipline</div>
+        </div>
+        <div class="compliance-grid">
+          <div class="control-card">
+            <div class="summary-tiles">
+              <div id="dailySummaryTile" class="summary-tile"></div>
+              <div id="weeklySummaryTile" class="summary-tile"></div>
+            </div>
+            <div style="height:12px"></div>
+            <div class="section-head" style="margin-bottom:10px">
+              <div>
+                <div class="control-title">Department status</div>
+                <div class="control-note">daily และ weekly แยกกันชัดเจน เพื่อให้ติดตามแต่ละแผนกได้ง่าย</div>
+              </div>
+            </div>
+            <div id="dailyDepartments" class="compliance-list"></div>
+            <div style="height:12px"></div>
+            <div id="weeklyDepartments" class="compliance-list"></div>
+          </div>
+          <div class="control-card">
+            <div class="section-head" style="margin-bottom:10px">
+              <div>
+                <div class="control-title">รายการที่ยังไม่ได้นับ</div>
+                <div class="control-note">กดที่รายการเพื่อเปิด item audit trail ได้ทันที</div>
+              </div>
+            </div>
+            <div class="split-equal" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <div class="section-tag" style="display:inline-flex;margin-bottom:10px">Daily missing</div>
+                <div id="missingDailyItems" class="table-list"></div>
+              </div>
+              <div>
+                <div class="section-tag" style="display:inline-flex;margin-bottom:10px">Weekly missing</div>
+                <div id="missingWeeklyItems" class="table-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <div class="split">
@@ -274,13 +170,12 @@
         </section>
       </div>
 
-
       <div class="adjust-grid">
         <section class="section">
           <div class="section-head">
             <div>
-              <h2>Adjust Module v1.0</h2>
-              <div class="section-note">admin-only correction layer • แยก correction ออกจาก Receive / Issue จริง</div>
+              <h2>Adjust Module v1.1</h2>
+              <div class="section-note">admin-only correction layer • reason/note rule เข้มขึ้น • เปิด audit trail จาก item ที่เลือกได้</div>
             </div>
             <div class="section-tag">Adjust</div>
           </div>
@@ -326,7 +221,7 @@
               </div>
               <div class="field full">
                 <label for="adjustNote">หมายเหตุ</label>
-                <textarea id="adjustNote" class="textarea" placeholder="ใส่รายละเอียดเพิ่มถ้าจำเป็น เช่น สาเหตุ / เลขอ้างอิง / คำอธิบาย"></textarea>
+                <textarea id="adjustNote" class="textarea" placeholder="บาง reason ต้องใส่ note อย่างน้อย 5 ตัวอักษร"></textarea>
               </div>
             </div>
 
@@ -343,13 +238,59 @@
           <div class="section-head">
             <div>
               <h2>Recent Adjusts</h2>
-              <div class="section-note">ใช้ review correction ล่าสุดก่อนตัดสินใจครั้งถัดไป</div>
+              <div class="section-note">filter ได้ตามช่วงเวลา / เหตุผล / คำค้น และกดเพื่อเปิด audit trail</div>
             </div>
             <div class="section-tag">Audit</div>
           </div>
-          <div id="recentAdjusts" class="table-list"></div>
+          <div class="control-card">
+            <div class="filter-toolbar">
+              <div class="field">
+                <label for="adjustRangeFilter">ช่วงเวลา</label>
+                <select id="adjustRangeFilter" class="select">
+                  <option value="today">Today</option>
+                  <option value="7d">Last 7 days</option>
+                  <option value="30d" selected>Last 30 days</option>
+                  <option value="90d">Last 90 days</option>
+                  <option value="all">All</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="adjustReasonFilter">เหตุผล</label>
+                <select id="adjustReasonFilter" class="select"></select>
+              </div>
+              <div class="field full-span">
+                <label for="adjustSearchFilter">ค้นหา</label>
+                <input id="adjustSearchFilter" class="input" type="search" placeholder="ค้นหา item / actor / note">
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button id="adjustFilterBtn" class="btn btn-secondary" type="button">Apply</button>
+              </div>
+            </div>
+            <div id="recentAdjusts" class="table-list"></div>
+          </div>
         </section>
       </div>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>Item Detail Audit Trail</h2>
+            <div class="section-note">รวม Count / Issue / Receive / Adjust ของ item เดียว เพื่อไล่สาเหตุได้จากหน้าเดียว</div>
+          </div>
+          <div class="section-tag">Timeline</div>
+        </div>
+        <div class="audit-grid">
+          <div class="control-card">
+            <div id="auditSelected" class="selected-card"></div>
+            <div style="height:12px"></div>
+            <div id="auditSummary" class="audit-summary"></div>
+          </div>
+          <div class="control-card">
+            <div id="auditEvents" class="audit-list"></div>
+          </div>
+        </div>
+      </section>
 
       <section class="section">
         <div class="section-head">
@@ -362,525 +303,10 @@
         <div id="dataQuality" class="health-list"></div>
       </section>
 
-      <div class="footer">JRT Ops Dashboard v2.1 Adjust Module v1.0 • single-file frontend • live + cache + fallback</div>
+      <div class="footer">JRT Ops Dashboard v2.2 • adjust v1.1 + count compliance • modular frontend/backend build</div>
     </main>
   </div>
 
-  <script>
-    const APP_CONFIG = {
-      api: {
-        baseUrl: "https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec",
-        defaultAction: 'dashboardBootstrap',
-        timeoutMs: 12000
-      },
-      cacheKey: 'jrt_ops_dashboard_v2_cache',
-      cacheAgeMs: 15 * 60 * 1000
-    };
-
-    const EMBEDDED_FALLBACK = {"ok":true,"appVersion":"2.1.0-adjust-v1","generatedAt":"2026-03-24T00:30:58.234329+00:00","dataAsOf":"2026-03-14","meta":{"latestSnapshotDate":"2026-03-14","latestActivityDate":"2026-03-19","warnings":["ยังไม่เคยนับ 417 รายการ","LOW 3 รายการ","snapshot ล่าสุดช้ากว่า activity 5 วัน"],"sourceWorkbook":"JRT_WEB_STOCK (4).xlsx"},"actionBoard":[{"key":"must_order","title":"ต้องสั่งวันนี้","value":100,"helper":"รายการมี suggested order > 0","tone":"order"},{"key":"low_stock","title":"สต๊อกต่ำ","value":3,"helper":"จาก Current_Stock_View.status = LOW","tone":"issue"},{"key":"no_count","title":"ยังไม่เคยนับ","value":417,"helper":"ควรเร่งเคลียร์ค่านับ","tone":"warn"},{"key":"receive_events","title":"รับของ 30 วัน","value":10,"helper":"ใช้ดู movement ล่าสุด","tone":"receive"}],"kpis":[{"key":"active_items","label":"สินค้า active","value":445,"unit":"items","note":"จาก Master_Items.active"},{"key":"tracked_items","label":"รายการใน snapshot","value":445,"unit":"items","note":"จาก Current_Stock_View"},{"key":"low_stock_items","label":"รายการ LOW","value":3,"unit":"items","note":"status = LOW"},{"key":"no_count_items","label":"ยังไม่เคยนับ","value":417,"unit":"items","note":"status = NO_COUNT_YET"},{"key":"order_candidates","label":"รายการควรสั่ง","value":100,"unit":"items","note":"suggested_order_qty > 0"},{"key":"suggested_order_qty","label":"ยอดแนะนำสั่งรวม","value":225.0,"unit":"qty","note":"รวม suggested_order_qty"},{"key":"count_events_30d","label":"Count 30 วัน","value":72,"unit":"events","note":"Count_Log 30 วันล่าสุด"},{"key":"issue_events_30d","label":"เบิก 30 วัน","value":25,"unit":"events","note":"Withdraw_Log 30 วันล่าสุด"}],"dailyTrends":[{"date":"2026-02-18","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-19","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-20","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-21","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-22","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-23","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-24","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-25","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-26","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-27","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-28","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-01","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-02","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-03","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-04","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-05","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-06","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-07","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-08","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-09","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-10","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-11","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-12","countEvents":33,"issueEvents":9,"receiveEvents":2,"countQty":178.0,"issueQty":9.0,"receiveQty":20.0},{"date":"2026-03-13","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-14","countEvents":4,"issueEvents":7,"receiveEvents":8,"countQty":12.0,"issueQty":9.0,"receiveQty":22.0},{"date":"2026-03-15","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-16","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-17","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-18","countEvents":0,"issueEvents":8,"receiveEvents":0,"countQty":0,"issueQty":16.0,"receiveQty":0},{"date":"2026-03-19","countEvents":35,"issueEvents":1,"receiveEvents":0,"countQty":680.0,"issueQty":1.0,"receiveQty":0}],"zoneSummary":[{"zone":"สต๊อกของสด/ผัก","itemCount":92,"currentStockTotal":31.0,"lowItems":3,"noCountItems":88,"okItems":1,"suggestedOrderTotal":213.0},{"zone":"ห้องสต๊อก","itemCount":100,"currentStockTotal":-8.0,"lowItems":0,"noCountItems":100,"okItems":0,"suggestedOrderTotal":9.0},{"zone":"สต๊อกบาร์น้ำ","itemCount":42,"currentStockTotal":41.0,"lowItems":0,"noCountItems":32,"okItems":10,"suggestedOrderTotal":3.0},{"zone":"ครัว","itemCount":159,"currentStockTotal":100.0,"lowItems":0,"noCountItems":145,"okItems":14,"suggestedOrderTotal":0.0},{"zone":"หน้าร้าน","itemCount":52,"currentStockTotal":0.0,"lowItems":0,"noCountItems":52,"okItems":0,"suggestedOrderTotal":0.0}],"topOrder":[{"itemKey":"kitchen-phlaim-079","itemName":"มะนาว","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":30.0,"thresholdStock":30.0,"suggestedOrderQty":30.0,"unit":"ลูก"},{"itemKey":"kitchen-enuue-satw-001","itemName":"หมูสุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-002","itemName":"เนื้อสุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-003","itemName":"ไก่สุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-aahaarthael-018","itemName":"เนื้อปูก้อน","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":5.0,"unit":"ถุง"},{"itemKey":"kitchen-ekhruue-ngain-014","itemName":"ไส้หมู","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":5.0,"targetPar":10.0,"thresholdStock":10.0,"suggestedOrderQty":5.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-017","itemName":"กุ้งทอดมัน","brand":"เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-015","itemName":"กุ้งสุกี้","brand":"เจ้เล็ก เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-016","itemName":"กุ้งแชบ๊วย","brand":"เจ้เล็ก","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-019","itemName":"ปลากระพง / ตัว","brand":"ทะเลสามารถ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"ตัว"},{"itemKey":"kitchen-aahaarthael-021","itemName":"ปลาดุกย่าง","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"ตัว"},{"itemKey":"kitchen-phaksd-032","itemName":"ผักกาดขาว","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-phaksd-031","itemName":"ผักบุ้ง","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-006","itemName":"เปเดตุ็น","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":2.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":3.0,"unit":"ถุง"},{"itemKey":"kitchen-enuue-satw-007","itemName":"แพ๊ะตุ็น","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":2.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":3.0,"unit":"ถุง"}],"watchlist":[{"itemKey":"kitchen-phlaim-079","itemName":"มะนาว","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":30.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":135},{"itemKey":"kitchen-aahaarthael-018","itemName":"เนื้อปูก้อน","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":5.0,"unit":"ถุง","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":110},{"itemKey":"kitchen-aahaarthael-017","itemName":"กุ้งทอดมัน","brand":"เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-015","itemName":"กุ้งสุกี้","brand":"เจ้เล็ก เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-016","itemName":"กุ้งแชบ๊วย","brand":"เจ้เล็ก","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-019","itemName":"ปลากระพง / ตัว","brand":"ทะเลสามารถ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"ตัว","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-021","itemName":"ปลาดุกย่าง","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"ตัว","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-032","itemName":"ผักกาดขาว","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-031","itemName":"ผักบุ้ง","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-040","itemName":"ขึ้นฉ่าย","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-030","itemName":"คะน้า","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-ehd-hn-aim-kh-ngd-ng-084","itemName":"ตั้งไฉ่","brand":"ตราอาเหลียง","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"กระปุก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-041","itemName":"ต้นหอม","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-033","itemName":"ผักกาดหอม","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-ehd-hn-aim-kh-ngd-ng-085","itemName":"มะนาวดอง","brand":"ส. เปงง้วน","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"กระปุก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phlaim-078","itemName":"มะพร้าวอ่อน","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phlaim-076","itemName":"มะม่วง","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-enuue-satw-008","itemName":"มันหมู","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107}],"topIssue30d":[{"itemKey":"stock-ekhruue-ngprung-007","itemName":"น้ำมันหอย","brand":"ตราแม่ครัว","zone":"ห้องสต๊อก","totalQty":5.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"front-ch-s-ekhruue-ngprung-015","itemName":"น้ำตาล","brand":"ตราวังขนาย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-ch-s-ekhruue-ngprung-145","itemName":"น้ำตาล","brand":"ตราวังขนาย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-ch-s-ekhruue-ngprung-149","itemName":"น้ำมันพืช","brand":"King","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-008","itemName":"นํ้าแดง","brand":"มิรันด้า","zone":"สต๊อกบาร์น้ำ","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"stock-esn-khaaw-020","itemName":"หมี่ฮ่องกง","brand":"ตรากระต่าย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"bar-ekhruue-ngduuem-004","itemName":"เปเปซี่ ใหญ่","brand":"Pepsi","zone":"สต๊อกบาร์น้ำ","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-011","itemName":"M-150","brand":"M-150","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"stock-kh-ngaehng-039","itemName":"กระเพาะปลา","brand":"ร้านเฮียโบ้","zone":"ห้องสต๊อก","totalQty":1.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-kathi-nm-175","itemName":"นมจืด","brand":"โฟร์โมสต์","zone":"ห้องสต๊อก","totalQty":1.0,"eventCount":1,"unit":"กล่อง"},{"itemKey":"bar-ekhruue-ngduuem-001","itemName":"นํ้ากลาง","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-002","itemName":"นํ้าใหญ่","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"}],"topReceive30d":[{"itemKey":"bar-ekhruue-ngduuem-001","itemName":"นํ้ากลาง","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":10.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-002","itemName":"นํ้าใหญ่","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":10.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"19.0","itemName":"100.0","brand":"225.0","zone":"-","totalQty":3.0,"eventCount":1,"unit":"2026-03-17T06:40:13.626209Z"},{"itemKey":"kitchen-enuue-satw-004","itemName":"หมูสับ","brand":"ตลาดวงเวียนใหญ่","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-001","itemName":"หมูสุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-002","itemName":"เนื้อสุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-005","itemName":"ไก่สับ","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-003","itemName":"ไก่สุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-006","itemName":"เปเดตุ็น","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-enuue-satw-007","itemName":"แพ๊ะตุ็น","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":2.0,"eventCount":1,"unit":"ถุง"}],"dataQuality":[{"check":"Master active without unit","status":"ok","value":0,"note":"active item ควรมี unit"},{"check":"Stock rows without latest count timestamp","status":"warn","value":417,"note":"ใช้ตรวจแถวที่อาจยังไม่เคยนับ"},{"check":"Order rows with suggested order > 0","status":"info","value":100,"note":"ใช้เป็นรายการที่ควรดูวันนี้"},{"check":"Snapshot lag from latest activity (days)","status":"warn","value":5,"note":"ถ้ามากกว่า 0 หมายถึง snapshot ยังไม่ทัน activity ล่าสุด"}]};
-    const els = {};
-    const state = {
-      payload: null,
-      source: 'boot',
-      adjustCatalog: [],
-      selectedAdjustItemKey: '',
-      adjustFilter: ''
-    };
-
-    const byId = (id) => document.getElementById(id);
-    const esc = (v) => String(v ?? '').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
-    const fmtNum = (v) => {
-      const n = Number(v || 0);
-      if (!Number.isFinite(n)) return '-';
-      return Math.abs(n) >= 1000 ? n.toLocaleString('th-TH', {maximumFractionDigits:1}) : n.toLocaleString('th-TH', {maximumFractionDigits:1});
-    };
-    const fmtDateThai = (iso) => {
-      if (!iso) return '-';
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return iso;
-      const day = String(d.getDate()).padStart(2,'0');
-      const month = String(d.getMonth()+1).padStart(2,'0');
-      const year = String(d.getFullYear()+543).slice(-2);
-      return `${day}/${month}/${year}`;
-    };
-    const toneClass = (tone) => `tone-${tone || 'count'}`;
-    const flagClass = (flag) => flag === 'NO_COUNT_YET' ? 'no_count' : flag === 'ADJUSTED' ? 'adjusted' : flag.toLowerCase();
-
-    const itemLabel = (item) => item?.displayName || [item?.itemName, item?.brand && item?.brand !== '-' && !String(item?.itemName || '').includes(item?.brand) ? item?.brand : '', item?.unit].filter(Boolean).join(' • ');
-    const normalizeText = (v) => String(v ?? '').toLowerCase().trim();
-
-    function init() {
-      els.statusPill = byId('statusPill');
-      els.sourcePill = byId('sourcePill');
-      els.snapshotPill = byId('snapshotPill');
-      els.activityPill = byId('activityPill');
-      els.warningBanner = byId('warningBanner');
-      els.actionBoard = byId('actionBoard');
-      els.kpiGrid = byId('kpiGrid');
-      els.trendChart = byId('trendChart');
-      els.zoneSummary = byId('zoneSummary');
-      els.watchlist = byId('watchlist');
-      els.topOrder = byId('topOrder');
-      els.topIssue = byId('topIssue');
-      els.topReceive = byId('topReceive');
-      els.dataQuality = byId('dataQuality');
-      els.adjustFilter = byId('adjustFilter');
-      els.adjustPicker = byId('adjustPicker');
-      els.adjustSelected = byId('adjustSelected');
-      els.adjustModeBadge = byId('adjustModeBadge');
-      els.adjustEmployee = byId('adjustEmployee');
-      els.adjustMode = byId('adjustMode');
-      els.adjustQty = byId('adjustQty');
-      els.adjustQtyLabel = byId('adjustQtyLabel');
-      els.adjustReason = byId('adjustReason');
-      els.adjustNote = byId('adjustNote');
-      els.adjustPreview = byId('adjustPreview');
-      els.adjustSubmitBtn = byId('adjustSubmitBtn');
-      els.adjustInlineStatus = byId('adjustInlineStatus');
-      els.recentAdjusts = byId('recentAdjusts');
-
-      byId('reloadBtn').addEventListener('click', () => loadDashboard({forceLive:true}));
-      byId('refreshBtn').addEventListener('click', adminRefresh);
-      els.adjustFilter.addEventListener('input', () => {
-        state.adjustFilter = els.adjustFilter.value || '';
-        renderAdjustPicker();
-      });
-      els.adjustMode.addEventListener('change', renderAdjustSelected);
-      els.adjustQty.addEventListener('input', renderAdjustSelected);
-      els.adjustReason.addEventListener('change', renderAdjustSelected);
-      els.adjustSubmitBtn.addEventListener('click', submitAdjust);
-      loadDashboard();
-    }
-
-    function getCachedPayload() {
-      try {
-        const raw = localStorage.getItem(APP_CONFIG.cacheKey);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (!parsed.savedAt || !parsed.payload) return null;
-        return parsed;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function saveCachedPayload(payload) {
-      try {
-        localStorage.setItem(APP_CONFIG.cacheKey, JSON.stringify({savedAt: Date.now(), payload}));
-      } catch (e) {}
-    }
-
-    function setStatus(text, cls='info') {
-      els.statusPill.className = `pill ${cls}`;
-      els.statusPill.textContent = text;
-    }
-
-    function setSource(source) {
-      const map = {
-        live:['source: live','ok'],
-        stale:['source: cache','warn'],
-        fallback:['source: embedded fallback','warn'],
-        boot:['source: boot','info']
-      };
-      const [text, cls] = map[source] || map.boot;
-      els.sourcePill.className = `pill ${cls}`;
-      els.sourcePill.textContent = text;
-    }
-
-    function renderWarnings(warnings=[]) {
-      els.warningBanner.innerHTML = warnings.length
-        ? warnings.map(w => `<div class="warning-item">${esc(w)}</div>`).join('')
-        : '';
-    }
-
-    function renderActionBoard(items=[]) {
-      els.actionBoard.innerHTML = items.map(item => `
-        <section class="action-card ${toneClass(item.tone)}">
-          <small>${esc(item.helper || '')}</small>
-          <div class="value">${fmtNum(item.value)}</div>
-          <div class="title">${esc(item.title)}</div>
-        </section>
-      `).join('');
-    }
-
-    function renderKpis(items=[]) {
-      els.kpiGrid.innerHTML = items.map(item => `
-        <article class="kpi-card">
-          <div class="kpi-label">${esc(item.label)}</div>
-          <div class="kpi-value">${fmtNum(item.value)}</div>
-          <div class="kpi-sub">${esc(item.note || '')}</div>
-        </article>
-      `).join('');
-    }
-
-    function buildSvgTrend(rows=[]) {
-      const data = rows.slice(-14);
-      const w = 760, h = 250, padL = 40, padR = 10, padT = 12, padB = 28;
-      const maxY = Math.max(1, ...data.flatMap(r => [r.countEvents||0, r.issueEvents||0, r.receiveEvents||0]));
-      const innerW = w - padL - padR, innerH = h - padT - padB;
-      const x = (i) => padL + (data.length <= 1 ? innerW/2 : innerW * (i/(data.length-1)));
-      const y = (v) => padT + innerH - (v / maxY) * innerH;
-      const pathFor = (field) => data.map((r,i) => `${i===0?'M':'L'}${x(i).toFixed(1)},${y(Number(r[field]||0)).toFixed(1)}`).join(' ');
-      const grid = [0,.25,.5,.75,1].map(p => {
-        const yy = padT + innerH - innerH*p;
-        const value = Math.round(maxY*p);
-        return `<g><line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="#e7eef6"/><text x="2" y="${yy+4}" fill="#71839a" font-size="11">${value}</text></g>`;
-      }).join('');
-      const labels = data.map((r,i) => {
-        if (i !== 0 && i !== data.length-1 && i % 3 !== 0) return '';
-        return `<text x="${x(i)}" y="${h-8}" text-anchor="middle" fill="#71839a" font-size="10">${fmtDateThai(r.date)}</text>`;
-      }).join('');
-      return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="250" aria-label="trend chart">
-        ${grid}
-        <path d="${pathFor('countEvents')}" fill="none" stroke="var(--count)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="${pathFor('issueEvents')}" fill="none" stroke="var(--issue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="${pathFor('receiveEvents')}" fill="none" stroke="var(--receive)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        ${labels}
-      </svg>`;
-    }
-
-    function renderZones(rows=[]) {
-      const max = Math.max(1, ...rows.map(r => Number(r.lowItems || 0) + Number(r.noCountItems || 0) + Number(r.itemCount || 0)/10));
-      els.zoneSummary.innerHTML = rows.slice(0, 8).map(row => {
-        const score = Number(row.lowItems || 0) + Number(row.noCountItems || 0) + Number(row.itemCount || 0)/10;
-        const width = Math.max(10, Math.round((score/max) * 100));
-        return `
-          <article class="zone-card">
-            <div class="zone-top">
-              <div class="zone-name">${esc(row.zone)}</div>
-              <div class="zone-meta">
-                <span class="mini-pill">items ${fmtNum(row.itemCount)}</span>
-                <span class="mini-pill">LOW ${fmtNum(row.lowItems)}</span>
-                <span class="mini-pill">สั่ง ${fmtNum(row.suggestedOrderTotal)}</span>
-              </div>
-            </div>
-            <div class="zone-track"><div class="zone-fill" style="width:${width}%"></div></div>
-            <div class="section-note">no count ${fmtNum(row.noCountItems)} • adjusted ${fmtNum(row.adjustedItems || 0)} • stock รวม ${fmtNum(row.currentStockTotal)}</div>
-          </article>`;
-      }).join('');
-    }
-
-    function rowCardLeft(title, sub, sidePills, flags) {
-      return `
-        <article class="row-card">
-          <div class="row-top">
-            <div>
-              <div class="row-title">${title}</div>
-              <div class="row-sub">${sub}</div>
-              ${flags ? `<div class="flag-row">${flags}</div>` : ''}
-            </div>
-            <div class="row-side">${sidePills}</div>
-          </div>
-        </article>`;
-    }
-
-    function renderWatchlist(rows=[]) {
-      els.watchlist.innerHTML = rows.slice(0, 10).map(row => rowCardLeft(
-        esc(row.itemName),
-        `แบรนด์: ${esc(row.brand || '-')}<br>โซน: ${esc(row.basisZone || '-')} • stock: ${fmtNum(row.currentStock)} ${esc(row.unit || '')}`,
-        `<span class="metric-pill">สั่ง ${fmtNum(row.suggestedOrderQty)}</span>`,
-        (row.flags || []).map(f => `<span class="flag ${flagClass(f)}">${esc(f)}</span>`).join('')
-      )).join('');
-    }
-
-    function renderTopOrder(rows=[]) {
-      els.topOrder.innerHTML = rows.slice(0, 10).map(row => rowCardLeft(
-        esc(row.itemName),
-        `แบรนด์: ${esc(row.brand || '-')}<br>basis: ${esc(row.basisZone || '-')} • stock ปัจจุบัน ${fmtNum(row.currentStock)} ${esc(row.unit || '')}`,
-        `<span class="metric-pill">ควรสั่ง ${fmtNum(row.suggestedOrderQty)}</span><span class="metric-pill">par ${fmtNum(row.targetPar)}</span>`,
-        ''
-      )).join('');
-    }
-
-    function renderActivity(target, rows=[]) {
-      target.innerHTML = rows.slice(0, 10).map(row => rowCardLeft(
-        esc(row.itemName),
-        `แบรนด์: ${esc(row.brand || '-')}<br>โซน: ${esc(row.zone || '-')} • events ${fmtNum(row.eventCount)}`,
-        `<span class="metric-pill">รวม ${fmtNum(row.totalQty)} ${esc(row.unit || '')}</span>`,
-        ''
-      )).join('');
-    }
-
-
-    function renderAdjustModule(payload={}) {
-      state.adjustCatalog = Array.isArray(payload.adjustCatalog) ? payload.adjustCatalog : [];
-      renderAdjustReasons(payload.adjustReasons || []);
-      if (!state.selectedAdjustItemKey && state.adjustCatalog.length) {
-        state.selectedAdjustItemKey = state.adjustCatalog[0].itemKey;
-      }
-      if (state.selectedAdjustItemKey && !findAdjustItem(state.selectedAdjustItemKey)) {
-        state.selectedAdjustItemKey = state.adjustCatalog[0]?.itemKey || '';
-      }
-      els.adjustModeBadge.textContent = `admin only • ${fmtNum((payload.recentAdjusts || []).length)} recent`;
-      renderAdjustPicker();
-      renderAdjustSelected();
-      renderRecentAdjusts(payload.recentAdjusts || []);
-    }
-
-    function renderAdjustReasons(reasons=[]) {
-      const current = els.adjustReason.value;
-      els.adjustReason.innerHTML = reasons.map(reason => `<option value="${esc(reason.code)}">${esc(reason.label)}</option>`).join('');
-      if (current && Array.from(els.adjustReason.options).some(opt => opt.value === current)) {
-        els.adjustReason.value = current;
-      }
-    }
-
-    function findAdjustItem(itemKey) {
-      return state.adjustCatalog.find(item => item.itemKey === itemKey) || null;
-    }
-
-    function selectAdjustItem(itemKey) {
-      state.selectedAdjustItemKey = itemKey;
-      renderAdjustPicker();
-      renderAdjustSelected();
-    }
-
-    function renderAdjustPicker() {
-      const term = normalizeText(state.adjustFilter);
-      const filtered = state.adjustCatalog.filter(item => {
-        if (!term) return true;
-        const hay = normalizeText([item.displayName, item.itemKey, item.brand, item.basisZone].join(' '));
-        return hay.includes(term);
-      }).slice(0, 40);
-
-      els.adjustPicker.innerHTML = filtered.length ? filtered.map(item => `
-        <button class="picker-item ${item.itemKey === state.selectedAdjustItemKey ? 'active' : ''}" type="button" data-item-key="${esc(item.itemKey)}">
-          <div class="picker-name">${esc(item.displayName || itemLabel(item))}</div>
-          <div class="picker-meta">โซน ${esc(item.basisZone || '-')} • stock ${fmtNum(item.currentStock)} ${esc(item.unit || '')} • ${esc(item.status || '-')}</div>
-        </button>
-      `).join('') : `<div class="empty-state">ไม่พบรายการที่ตรงกับคำค้น</div>`;
-
-      Array.from(els.adjustPicker.querySelectorAll('[data-item-key]')).forEach(btn => {
-        btn.addEventListener('click', () => selectAdjustItem(btn.getAttribute('data-item-key')));
-      });
-    }
-
-    function renderAdjustSelected() {
-      const item = findAdjustItem(state.selectedAdjustItemKey);
-      const mode = els.adjustMode.value || 'delta';
-      const qty = Number(els.adjustQty.value || 0);
-      const qtyValid = els.adjustQty.value !== '' && Number.isFinite(qty);
-      const currentStock = Number(item?.currentStock || 0);
-      const projected = mode === 'absolute' ? qty : currentStock + qty;
-      const invalidProjected = qtyValid && projected < 0;
-      const needsCountText = item?.needsCountReview ? 'ยังไม่เคยนับ' : 'มี count แล้ว';
-
-      els.adjustQtyLabel.textContent = mode === 'absolute' ? 'ตั้งยอดใหม่' : 'จำนวนปรับ (+/-)';
-
-      if (!item) {
-        els.adjustSelected.innerHTML = `<div class="empty-state">เลือกสินค้าจากรายการด้านบนก่อน</div>`;
-        els.adjustPreview.innerHTML = `<div class="preview-label">Preview</div><div class="preview-value">-</div><div class="preview-sub">ยังไม่ได้เลือกสินค้า</div>`;
-        els.adjustInlineStatus.textContent = 'ยังไม่ได้เลือกสินค้า';
-        els.adjustSubmitBtn.disabled = true;
-        return;
-      }
-
-      els.adjustSelected.innerHTML = `
-        <div class="selected-top">
-          <div>
-            <div class="selected-name">${esc(item.displayName || itemLabel(item))}</div>
-            <div class="selected-meta">item key: ${esc(item.itemKey)} • โซน ${esc(item.basisZone || '-')}</div>
-          </div>
-        </div>
-        <div class="selected-pills">
-          <span class="mini-pill">stock ${fmtNum(currentStock)} ${esc(item.unit || '')}</span>
-          <span class="mini-pill">${esc(item.status || '-')}</span>
-          <span class="mini-pill">${esc(needsCountText)}</span>
-          ${item.adjusted ? `<span class="mini-pill">adjusted ล่าสุด ${esc(fmtDateThai(item.lastAdjustAt))}</span>` : ''}
-        </div>
-      `;
-
-      let previewTitle = mode === 'absolute' ? 'หลังตั้งยอดใหม่' : 'หลัง apply delta';
-      let previewValue = qtyValid ? fmtNum(projected) : '-';
-      let previewSub = mode === 'absolute'
-        ? 'current ' + fmtNum(currentStock) + ' → target ' + (qtyValid ? fmtNum(qty) : '-')
-        : 'current ' + fmtNum(currentStock) + (qtyValid ? ' + delta ' + fmtNum(qty) : ' + delta -');
-
-      if (invalidProjected) {
-        previewTitle = 'ไม่สามารถบันทึก';
-        previewValue = fmtNum(projected);
-        previewSub = 'stock หลังปรับจะติดลบ ซึ่งระบบไม่อนุญาต';
-      }
-
-      els.adjustPreview.innerHTML = `
-        <div class="preview-label">${esc(previewTitle)}</div>
-        <div class="preview-value">${previewValue}</div>
-        <div class="preview-sub">${esc(previewSub)}</div>
-      `;
-
-      const actorReady = !!els.adjustEmployee.value.trim();
-      const reasonReady = !!els.adjustReason.value;
-      const canSubmit = !!item && qtyValid && actorReady && reasonReady && !invalidProjected && (mode === 'absolute' ? qty >= 0 : qty !== 0);
-      els.adjustSubmitBtn.disabled = !canSubmit;
-      els.adjustInlineStatus.textContent = canSubmit
-        ? `พร้อมบันทึก • ${mode === 'absolute' ? 'set' : 'delta'}`
-        : 'กรอกผู้ทำรายการ / จำนวน / เหตุผล ให้ครบ';
-    }
-
-    function renderRecentAdjusts(rows=[]) {
-      els.recentAdjusts.innerHTML = rows.length ? rows.map(row => rowCardLeft(
-        esc(itemLabel(row)),
-        `เหตุผล: ${esc(row.reasonCode || '-')}<br>โซน: ${esc(row.basisZone || '-')} • โดย ${esc(row.actor || '-')} • ${esc(fmtDateThai(row.timestamp))}` + (row.note ? `<div class="recent-adjust-note">${esc(row.note)}</div>` : ''),
-        `<span class="metric-pill">${esc(row.adjustMode === 'absolute' ? 'set' : 'delta')} ${fmtNum(row.qty)}</span><span class="metric-pill">${fmtNum(row.beforeStock)} → ${fmtNum(row.afterStock)}</span>`,
-        `<span class="flag adjusted">ADJUSTED</span>`
-      )).join('') : `<div class="empty-state">ยังไม่มี adjust log ในไฟล์นี้</div>`;
-    }
-
-    async function submitAdjust() {
-      const item = findAdjustItem(state.selectedAdjustItemKey);
-      if (!item) return;
-      const actor = els.adjustEmployee.value.trim();
-      const mode = els.adjustMode.value || 'delta';
-      const qty = Number(els.adjustQty.value || 0);
-      const reasonCode = els.adjustReason.value;
-      const note = els.adjustNote.value.trim();
-
-      if (!actor || !reasonCode || !Number.isFinite(qty) || (mode === 'delta' && qty === 0) || (mode === 'absolute' && qty < 0)) {
-        renderAdjustSelected();
-        return;
-      }
-
-      const token = sessionStorage.getItem('JRT_OPS_ADMIN_TOKEN') || window.prompt('กรอก JRT OPS ADMIN TOKEN');
-      if (!token) return;
-      sessionStorage.setItem('JRT_OPS_ADMIN_TOKEN', token);
-
-      const projected = mode === 'absolute' ? qty : Number(item.currentStock || 0) + qty;
-      if (projected < 0) {
-        renderAdjustSelected();
-        return;
-      }
-
-      els.adjustSubmitBtn.disabled = true;
-      setStatus('กำลังบันทึก adjust...', 'info');
-      try {
-        const result = await jsonp('createAdjust', {
-          token,
-          itemKey: item.itemKey,
-          adjustMode: mode,
-          qty: String(qty),
-          reasonCode,
-          note,
-          actor
-        }, 25000);
-        if (!result || result.ok === false) throw new Error(result?.error || 'createAdjust failed');
-        els.adjustQty.value = '';
-        els.adjustNote.value = '';
-        await loadDashboard({forceLive:true});
-        setStatus(`adjust สำเร็จ • ${item.displayName || itemLabel(item)}`, 'ok');
-      } catch (error) {
-        console.error(error);
-        setStatus(`adjust ไม่สำเร็จ: ${error.message}`, 'danger');
-      } finally {
-        renderAdjustSelected();
-      }
-    }
-
-    function renderDataQuality(rows=[]) {
-      els.dataQuality.innerHTML = rows.map(row => `
-        <div class="health-row">
-          <div>
-            <div class="health-title">${esc(row.check)}</div>
-            <div class="health-note">${esc(row.note || '')}</div>
-          </div>
-          <div class="pill ${row.status === 'ok' ? 'ok' : row.status === 'warn' ? 'warn' : 'info'}">${esc(row.status)} • ${fmtNum(row.value)}</div>
-        </div>
-      `).join('');
-    }
-
-    function render(payload, source='live') {
-      state.payload = payload;
-      state.source = source;
-      setSource(source);
-      renderWarnings(payload.meta?.warnings || []);
-      els.snapshotPill.textContent = `snapshot: ${fmtDateThai(payload.meta?.latestSnapshotDate)}`;
-      els.activityPill.textContent = `activity: ${fmtDateThai(payload.meta?.latestActivityDate)}`;
-      renderActionBoard(payload.actionBoard || []);
-      renderKpis(payload.kpis || []);
-      els.trendChart.innerHTML = buildSvgTrend(payload.dailyTrends || []);
-      renderZones(payload.zoneSummary || []);
-      renderWatchlist(payload.watchlist || []);
-      renderTopOrder(payload.topOrder || []);
-      renderActivity(els.topIssue, payload.topIssue30d || []);
-      renderActivity(els.topReceive, payload.topReceive30d || []);
-      renderAdjustModule(payload);
-      renderDataQuality(payload.dataQuality || []);
-    }
-
-    function buildUrl(action, params={}) {
-      const url = new URL(APP_CONFIG.api.baseUrl);
-      url.searchParams.set('action', action);
-      Object.entries(params).forEach(([k,v]) => {
-        if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
-      });
-      return url.toString();
-    }
-
-    function jsonp(action, params={}, timeoutMs = APP_CONFIG.api.timeoutMs) {
-      return new Promise((resolve, reject) => {
-        const cb = '__jrt_jsonp_' + Math.random().toString(36).slice(2);
-        const script = document.createElement('script');
-        const timer = setTimeout(() => cleanup(new Error('JSONP timeout')), timeoutMs);
-
-        function cleanup(err, value) {
-          clearTimeout(timer);
-          script.remove();
-          try { delete window[cb]; } catch (e) { window[cb] = undefined; }
-          if (err) reject(err); else resolve(value);
-        }
-
-        window[cb] = (data) => cleanup(null, data);
-        script.onerror = () => cleanup(new Error('JSONP request failed'));
-        script.src = buildUrl(action, {...params, callback: cb});
-        document.body.appendChild(script);
-      });
-    }
-
-    async function loadDashboard(options={}) {
-      const cached = getCachedPayload();
-      if (cached?.payload && !options.forceLive) {
-        render(cached.payload, (Date.now() - cached.savedAt) <= APP_CONFIG.cacheAgeMs ? 'stale' : 'fallback');
-        setStatus('แสดง cache ระหว่างโหลด live...', 'warn');
-      } else {
-        setStatus('กำลังโหลด live data...', 'info');
-      }
-      try {
-        const payload = await jsonp(APP_CONFIG.api.defaultAction);
-        if (!payload || payload.ok === false) throw new Error(payload?.error || 'backend returned invalid payload');
-        saveCachedPayload(payload);
-        render(payload, 'live');
-        setStatus(`live พร้อมใช้ • อัปเดต ${fmtDateThai(payload.generatedAt || payload.meta?.latestSnapshotDate)}`, 'ok');
-      } catch (error) {
-        console.warn('Live bootstrap failed', error);
-        if (cached?.payload) {
-          render(cached.payload, 'stale');
-          setStatus('โหลด live ไม่สำเร็จ • ใช้ cache ล่าสุดแทน', 'warn');
-          return;
-        }
-        render(EMBEDDED_FALLBACK, 'fallback');
-        setStatus('โหลด backend ไม่สำเร็จ • ใช้ embedded fallback', 'warn');
-      }
-    }
-
-    async function adminRefresh() {
-      const token = sessionStorage.getItem('JRT_OPS_ADMIN_TOKEN') || window.prompt('กรอก JRT OPS ADMIN TOKEN');
-      if (!token) return;
-      sessionStorage.setItem('JRT_OPS_ADMIN_TOKEN', token);
-      setStatus('กำลัง rebuild summary...', 'info');
-      byId('refreshBtn').disabled = true;
-      try {
-        const result = await jsonp('adminRefreshDashboard', { token }, 25000);
-        if (!result || result.ok === false) throw new Error(result?.error || 'refresh failed');
-        await loadDashboard({forceLive:true});
-        setStatus('refresh สำเร็จ • summary ถูก rebuild แล้ว', 'ok');
-      } catch (error) {
-        console.error(error);
-        setStatus(`refresh ไม่สำเร็จ: ${error.message}`, 'danger');
-      } finally {
-        byId('refreshBtn').disabled = false;
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', init);
-  </script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>
