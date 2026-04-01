@@ -120,6 +120,43 @@
       .pill{font-size:12px;padding:7px 10px}
       .header-actions .btn{flex:1 1 calc(50% - 5px)}
     }
+
+    .adjust-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:18px}
+    .control-card{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fbfdff,#fff);padding:14px}
+    .control-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+    .control-title{font-size:18px;font-weight:900;line-height:1.2}
+    .control-note{font-size:13px;color:var(--muted);margin-top:4px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:grid;gap:6px}
+    .field.full{grid-column:1 / -1}
+    .field label{font-size:12px;font-weight:800;color:#40607f}
+    .input,.select,.textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;font:inherit;color:var(--ink);outline:none}
+    .textarea{min-height:86px;resize:vertical}
+    .input:focus,.select:focus,.textarea:focus{border-color:#9eb8d8;box-shadow:0 0 0 4px rgba(30,99,237,.08)}
+    .picker-shell{display:grid;gap:10px}
+    .picker-list{display:grid;gap:8px;max-height:300px;overflow:auto;padding-right:2px}
+    .picker-item{padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;cursor:pointer;transition:.18s ease}
+    .picker-item:hover{transform:translateY(-1px);box-shadow:0 10px 18px rgba(16,42,67,.06)}
+    .picker-item.active{border-color:#4d87ff;background:#eef4ff;box-shadow:0 0 0 3px rgba(77,135,255,.10)}
+    .picker-name{font-weight:900;line-height:1.25}
+    .picker-meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .selected-card{padding:12px;border-radius:14px;background:#f6f9fd;border:1px solid var(--line);display:grid;gap:8px}
+    .selected-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .selected-name{font-size:17px;font-weight:900;line-height:1.2}
+    .selected-meta{font-size:12px;color:var(--muted)}
+    .selected-pills{display:flex;gap:8px;flex-wrap:wrap}
+    .selected-pills .mini-pill{background:#fff;border:1px solid var(--line)}
+    .preview-box{padding:12px;border-radius:14px;background:#0f172a;color:#fff;display:grid;gap:6px}
+    .preview-label{font-size:12px;letter-spacing:.02em;color:#c6d4e8}
+    .preview-value{font-size:24px;font-weight:900;line-height:1}
+    .preview-sub{font-size:13px;color:#d7e1ef}
+    .adjust-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:2px}
+    .adjust-actions .btn{min-width:160px}
+    .mini-status{font-size:12px;color:var(--muted);font-weight:700}
+    .empty-state{padding:12px;border-radius:14px;background:#f8fbff;border:1px dashed #cad7e7;color:var(--muted);font-size:13px}
+    .flag.adjusted{background:#e8f1ff;color:#175cd3}
+    .recent-adjust-note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
+
   </style>
 </head>
 <body>
@@ -127,8 +164,8 @@
     <header class="header">
       <div class="header-top">
         <div class="brand">
-          <h1>JRT Ops Dashboard v2.0</h1>
-          <p>expert rebuild • mobile-first • read-only • ใช้ชีทเดียวกับ RealStock</p>
+          <h1>JRT Ops Dashboard v2.1</h1>
+          <p>adjust module v1.0 • mobile-first • admin correction layer • ใช้ชีทเดียวกับ RealStock</p>
         </div>
         <div class="header-actions">
           <button id="refreshBtn" class="btn btn-primary" type="button">Admin Refresh</button>
@@ -237,6 +274,83 @@
         </section>
       </div>
 
+
+      <div class="adjust-grid">
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2>Adjust Module v1.0</h2>
+              <div class="section-note">admin-only correction layer • แยก correction ออกจาก Receive / Issue จริง</div>
+            </div>
+            <div class="section-tag">Adjust</div>
+          </div>
+
+          <div class="control-card">
+            <div class="control-head">
+              <div>
+                <div class="control-title">เลือกสินค้าและปรับยอด</div>
+                <div class="control-note">delta = เพิ่ม/ลดจากยอดปัจจุบัน • absolute = ตั้งยอดใหม่</div>
+              </div>
+              <div id="adjustModeBadge" class="pill info">admin only</div>
+            </div>
+
+            <div class="picker-shell">
+              <div class="field full">
+                <label for="adjustFilter">ค้นหาสินค้า</label>
+                <input id="adjustFilter" class="input" type="search" placeholder="พิมพ์ชื่อสินค้า / แบรนด์ / item key / โซน">
+              </div>
+              <div id="adjustPicker" class="picker-list"></div>
+            </div>
+
+            <div id="adjustSelected" class="selected-card" style="margin-top:12px"></div>
+
+            <div class="form-grid" style="margin-top:12px">
+              <div class="field">
+                <label for="adjustEmployee">ผู้ทำรายการ</label>
+                <input id="adjustEmployee" class="input" type="text" placeholder="เช่น Manager A">
+              </div>
+              <div class="field">
+                <label for="adjustMode">โหมด</label>
+                <select id="adjustMode" class="select">
+                  <option value="delta">Delta adjust (+/-)</option>
+                  <option value="absolute">Absolute adjust (set stock)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="adjustQty" id="adjustQtyLabel">จำนวนปรับ (+/-)</label>
+                <input id="adjustQty" class="input" type="number" step="1" inputmode="decimal" placeholder="เช่น -2 หรือ 5">
+              </div>
+              <div class="field">
+                <label for="adjustReason">เหตุผล</label>
+                <select id="adjustReason" class="select"></select>
+              </div>
+              <div class="field full">
+                <label for="adjustNote">หมายเหตุ</label>
+                <textarea id="adjustNote" class="textarea" placeholder="ใส่รายละเอียดเพิ่มถ้าจำเป็น เช่น สาเหตุ / เลขอ้างอิง / คำอธิบาย"></textarea>
+              </div>
+            </div>
+
+            <div id="adjustPreview" class="preview-box" style="margin-top:12px"></div>
+
+            <div class="adjust-actions">
+              <button id="adjustSubmitBtn" class="btn btn-primary" type="button">บันทึก Adjust</button>
+              <div id="adjustInlineStatus" class="mini-status">ยังไม่ได้เลือกสินค้า</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2>Recent Adjusts</h2>
+              <div class="section-note">ใช้ review correction ล่าสุดก่อนตัดสินใจครั้งถัดไป</div>
+            </div>
+            <div class="section-tag">Audit</div>
+          </div>
+          <div id="recentAdjusts" class="table-list"></div>
+        </section>
+      </div>
+
       <section class="section">
         <div class="section-head">
           <div>
@@ -248,27 +362,29 @@
         <div id="dataQuality" class="health-list"></div>
       </section>
 
-      <div class="footer">JRT Ops Dashboard v2.0 Expert Rebuild • single-file frontend • live + cache + fallback</div>
+      <div class="footer">JRT Ops Dashboard v2.1 Adjust Module v1.0 • single-file frontend • live + cache + fallback</div>
     </main>
   </div>
 
   <script>
-const APP_CONFIG = {
-  api: {
-    baseUrl: "https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec",
-    defaultAction: 'dashboardBootstrap',
-    timeoutMs: 12000,
-    adminToken: "JRT_OPS_ADMIN_2026"
-  },
-  cacheKey: 'jrt_ops_dashboard_v2_cache',
-  cacheAgeMs: 15 * 60 * 1000
-};
+    const APP_CONFIG = {
+      api: {
+        baseUrl: "https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec",
+        defaultAction: 'dashboardBootstrap',
+        timeoutMs: 12000
+      },
+      cacheKey: 'jrt_ops_dashboard_v2_cache',
+      cacheAgeMs: 15 * 60 * 1000
+    };
 
-    const EMBEDDED_FALLBACK = {"ok":true,"appVersion":"2.0.0","generatedAt":"2026-03-24T00:30:58.234329+00:00","dataAsOf":"2026-03-14","meta":{"latestSnapshotDate":"2026-03-14","latestActivityDate":"2026-03-19","warnings":["ยังไม่เคยนับ 417 รายการ","LOW 3 รายการ","snapshot ล่าสุดช้ากว่า activity 5 วัน"],"sourceWorkbook":"JRT_WEB_STOCK (4).xlsx"},"actionBoard":[{"key":"must_order","title":"ต้องสั่งวันนี้","value":100,"helper":"รายการมี suggested order > 0","tone":"order"},{"key":"low_stock","title":"สต๊อกต่ำ","value":3,"helper":"จาก Current_Stock_View.status = LOW","tone":"issue"},{"key":"no_count","title":"ยังไม่เคยนับ","value":417,"helper":"ควรเร่งเคลียร์ค่านับ","tone":"warn"},{"key":"receive_events","title":"รับของ 30 วัน","value":10,"helper":"ใช้ดู movement ล่าสุด","tone":"receive"}],"kpis":[{"key":"active_items","label":"สินค้า active","value":445,"unit":"items","note":"จาก Master_Items.active"},{"key":"tracked_items","label":"รายการใน snapshot","value":445,"unit":"items","note":"จาก Current_Stock_View"},{"key":"low_stock_items","label":"รายการ LOW","value":3,"unit":"items","note":"status = LOW"},{"key":"no_count_items","label":"ยังไม่เคยนับ","value":417,"unit":"items","note":"status = NO_COUNT_YET"},{"key":"order_candidates","label":"รายการควรสั่ง","value":100,"unit":"items","note":"suggested_order_qty > 0"},{"key":"suggested_order_qty","label":"ยอดแนะนำสั่งรวม","value":225.0,"unit":"qty","note":"รวม suggested_order_qty"},{"key":"count_events_30d","label":"Count 30 วัน","value":72,"unit":"events","note":"Count_Log 30 วันล่าสุด"},{"key":"issue_events_30d","label":"เบิก 30 วัน","value":25,"unit":"events","note":"Withdraw_Log 30 วันล่าสุด"}],"dailyTrends":[{"date":"2026-02-18","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-19","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-20","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-21","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-22","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-23","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-24","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-25","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-26","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-27","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-28","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-01","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-02","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-03","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-04","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-05","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-06","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-07","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-08","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-09","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-10","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-11","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-12","countEvents":33,"issueEvents":9,"receiveEvents":2,"countQty":178.0,"issueQty":9.0,"receiveQty":20.0},{"date":"2026-03-13","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-14","countEvents":4,"issueEvents":7,"receiveEvents":8,"countQty":12.0,"issueQty":9.0,"receiveQty":22.0},{"date":"2026-03-15","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-16","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-17","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-18","countEvents":0,"issueEvents":8,"receiveEvents":0,"countQty":0,"issueQty":16.0,"receiveQty":0},{"date":"2026-03-19","countEvents":35,"issueEvents":1,"receiveEvents":0,"countQty":680.0,"issueQty":1.0,"receiveQty":0}],"zoneSummary":[{"zone":"สต๊อกของสด/ผัก","itemCount":92,"currentStockTotal":31.0,"lowItems":3,"noCountItems":88,"okItems":1,"suggestedOrderTotal":213.0},{"zone":"ห้องสต๊อก","itemCount":100,"currentStockTotal":-8.0,"lowItems":0,"noCountItems":100,"okItems":0,"suggestedOrderTotal":9.0},{"zone":"สต๊อกบาร์น้ำ","itemCount":42,"currentStockTotal":41.0,"lowItems":0,"noCountItems":32,"okItems":10,"suggestedOrderTotal":3.0},{"zone":"ครัว","itemCount":159,"currentStockTotal":100.0,"lowItems":0,"noCountItems":145,"okItems":14,"suggestedOrderTotal":0.0},{"zone":"หน้าร้าน","itemCount":52,"currentStockTotal":0.0,"lowItems":0,"noCountItems":52,"okItems":0,"suggestedOrderTotal":0.0}],"topOrder":[{"itemKey":"kitchen-phlaim-079","itemName":"มะนาว","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":30.0,"thresholdStock":30.0,"suggestedOrderQty":30.0,"unit":"ลูก"},{"itemKey":"kitchen-enuue-satw-001","itemName":"หมูสุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-002","itemName":"เนื้อสุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-003","itemName":"ไก่สุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-aahaarthael-018","itemName":"เนื้อปูก้อน","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":5.0,"unit":"ถุง"},{"itemKey":"kitchen-ekhruue-ngain-014","itemName":"ไส้หมู","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":5.0,"targetPar":10.0,"thresholdStock":10.0,"suggestedOrderQty":5.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-017","itemName":"กุ้งทอดมัน","brand":"เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-015","itemName":"กุ้งสุกี้","brand":"เจ้เล็ก เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-016","itemName":"กุ้งแชบ๊วย","brand":"เจ้เล็ก","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-019","itemName":"ปลากระพง / ตัว","brand":"ทะเลสามารถ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"ตัว"},{"itemKey":"kitchen-aahaarthael-021","itemName":"ปลาดุกย่าง","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"ตัว"},{"itemKey":"kitchen-phaksd-032","itemName":"ผักกาดขาว","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-phaksd-031","itemName":"ผักบุ้ง","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-006","itemName":"เปเดตุ็น","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":2.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":3.0,"unit":"ถุง"},{"itemKey":"kitchen-enuue-satw-007","itemName":"แพ๊ะตุ็น","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":2.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":3.0,"unit":"ถุง"}],"watchlist":[{"itemKey":"kitchen-phlaim-079","itemName":"มะนาว","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":30.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":135},{"itemKey":"kitchen-aahaarthael-018","itemName":"เนื้อปูก้อน","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":5.0,"unit":"ถุง","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":110},{"itemKey":"kitchen-aahaarthael-017","itemName":"กุ้งทอดมัน","brand":"เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-015","itemName":"กุ้งสุกี้","brand":"เจ้เล็ก เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-016","itemName":"กุ้งแชบ๊วย","brand":"เจ้เล็ก","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-019","itemName":"ปลากระพง / ตัว","brand":"ทะเลสามารถ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"ตัว","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-021","itemName":"ปลาดุกย่าง","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"ตัว","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-032","itemName":"ผักกาดขาว","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-031","itemName":"ผักบุ้ง","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-040","itemName":"ขึ้นฉ่าย","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-030","itemName":"คะน้า","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-ehd-hn-aim-kh-ngd-ng-084","itemName":"ตั้งไฉ่","brand":"ตราอาเหลียง","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"กระปุก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-041","itemName":"ต้นหอม","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-033","itemName":"ผักกาดหอม","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-ehd-hn-aim-kh-ngd-ng-085","itemName":"มะนาวดอง","brand":"ส. เปงง้วน","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"กระปุก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phlaim-078","itemName":"มะพร้าวอ่อน","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phlaim-076","itemName":"มะม่วง","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-enuue-satw-008","itemName":"มันหมู","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107}],"topIssue30d":[{"itemKey":"stock-ekhruue-ngprung-007","itemName":"น้ำมันหอย","brand":"ตราแม่ครัว","zone":"ห้องสต๊อก","totalQty":5.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"front-ch-s-ekhruue-ngprung-015","itemName":"น้ำตาล","brand":"ตราวังขนาย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-ch-s-ekhruue-ngprung-145","itemName":"น้ำตาล","brand":"ตราวังขนาย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-ch-s-ekhruue-ngprung-149","itemName":"น้ำมันพืช","brand":"King","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-008","itemName":"นํ้าแดง","brand":"มิรันด้า","zone":"สต๊อกบาร์น้ำ","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"stock-esn-khaaw-020","itemName":"หมี่ฮ่องกง","brand":"ตรากระต่าย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"bar-ekhruue-ngduuem-004","itemName":"เปเปซี่ ใหญ่","brand":"Pepsi","zone":"สต๊อกบาร์น้ำ","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-011","itemName":"M-150","brand":"M-150","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"stock-kh-ngaehng-039","itemName":"กระเพาะปลา","brand":"ร้านเฮียโบ้","zone":"ห้องสต๊อก","totalQty":1.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-kathi-nm-175","itemName":"นมจืด","brand":"โฟร์โมสต์","zone":"ห้องสต๊อก","totalQty":1.0,"eventCount":1,"unit":"กล่อง"},{"itemKey":"bar-ekhruue-ngduuem-001","itemName":"นํ้ากลาง","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-002","itemName":"นํ้าใหญ่","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"}],"topReceive30d":[{"itemKey":"bar-ekhruue-ngduuem-001","itemName":"นํ้ากลาง","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":10.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-002","itemName":"นํ้าใหญ่","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":10.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"19.0","itemName":"100.0","brand":"225.0","zone":"-","totalQty":3.0,"eventCount":1,"unit":"2026-03-17T06:40:13.626209Z"},{"itemKey":"kitchen-enuue-satw-004","itemName":"หมูสับ","brand":"ตลาดวงเวียนใหญ่","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-001","itemName":"หมูสุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-002","itemName":"เนื้อสุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-005","itemName":"ไก่สับ","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-003","itemName":"ไก่สุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-006","itemName":"เปเดตุ็น","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-enuue-satw-007","itemName":"แพ๊ะตุ็น","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":2.0,"eventCount":1,"unit":"ถุง"}],"dataQuality":[{"check":"Master active without unit","status":"ok","value":0,"note":"active item ควรมี unit"},{"check":"Stock rows without latest count timestamp","status":"warn","value":417,"note":"ใช้ตรวจแถวที่อาจยังไม่เคยนับ"},{"check":"Order rows with suggested order > 0","status":"info","value":100,"note":"ใช้เป็นรายการที่ควรดูวันนี้"},{"check":"Snapshot lag from latest activity (days)","status":"warn","value":5,"note":"ถ้ามากกว่า 0 หมายถึง snapshot ยังไม่ทัน activity ล่าสุด"}]};
+    const EMBEDDED_FALLBACK = {"ok":true,"appVersion":"2.1.0-adjust-v1","generatedAt":"2026-03-24T00:30:58.234329+00:00","dataAsOf":"2026-03-14","meta":{"latestSnapshotDate":"2026-03-14","latestActivityDate":"2026-03-19","warnings":["ยังไม่เคยนับ 417 รายการ","LOW 3 รายการ","snapshot ล่าสุดช้ากว่า activity 5 วัน"],"sourceWorkbook":"JRT_WEB_STOCK (4).xlsx"},"actionBoard":[{"key":"must_order","title":"ต้องสั่งวันนี้","value":100,"helper":"รายการมี suggested order > 0","tone":"order"},{"key":"low_stock","title":"สต๊อกต่ำ","value":3,"helper":"จาก Current_Stock_View.status = LOW","tone":"issue"},{"key":"no_count","title":"ยังไม่เคยนับ","value":417,"helper":"ควรเร่งเคลียร์ค่านับ","tone":"warn"},{"key":"receive_events","title":"รับของ 30 วัน","value":10,"helper":"ใช้ดู movement ล่าสุด","tone":"receive"}],"kpis":[{"key":"active_items","label":"สินค้า active","value":445,"unit":"items","note":"จาก Master_Items.active"},{"key":"tracked_items","label":"รายการใน snapshot","value":445,"unit":"items","note":"จาก Current_Stock_View"},{"key":"low_stock_items","label":"รายการ LOW","value":3,"unit":"items","note":"status = LOW"},{"key":"no_count_items","label":"ยังไม่เคยนับ","value":417,"unit":"items","note":"status = NO_COUNT_YET"},{"key":"order_candidates","label":"รายการควรสั่ง","value":100,"unit":"items","note":"suggested_order_qty > 0"},{"key":"suggested_order_qty","label":"ยอดแนะนำสั่งรวม","value":225.0,"unit":"qty","note":"รวม suggested_order_qty"},{"key":"count_events_30d","label":"Count 30 วัน","value":72,"unit":"events","note":"Count_Log 30 วันล่าสุด"},{"key":"issue_events_30d","label":"เบิก 30 วัน","value":25,"unit":"events","note":"Withdraw_Log 30 วันล่าสุด"}],"dailyTrends":[{"date":"2026-02-18","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-19","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-20","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-21","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-22","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-23","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-24","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-25","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-26","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-27","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-02-28","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-01","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-02","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-03","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-04","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-05","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-06","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-07","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-08","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-09","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-10","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-11","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-12","countEvents":33,"issueEvents":9,"receiveEvents":2,"countQty":178.0,"issueQty":9.0,"receiveQty":20.0},{"date":"2026-03-13","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-14","countEvents":4,"issueEvents":7,"receiveEvents":8,"countQty":12.0,"issueQty":9.0,"receiveQty":22.0},{"date":"2026-03-15","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-16","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-17","countEvents":0,"issueEvents":0,"receiveEvents":0,"countQty":0,"issueQty":0,"receiveQty":0},{"date":"2026-03-18","countEvents":0,"issueEvents":8,"receiveEvents":0,"countQty":0,"issueQty":16.0,"receiveQty":0},{"date":"2026-03-19","countEvents":35,"issueEvents":1,"receiveEvents":0,"countQty":680.0,"issueQty":1.0,"receiveQty":0}],"zoneSummary":[{"zone":"สต๊อกของสด/ผัก","itemCount":92,"currentStockTotal":31.0,"lowItems":3,"noCountItems":88,"okItems":1,"suggestedOrderTotal":213.0},{"zone":"ห้องสต๊อก","itemCount":100,"currentStockTotal":-8.0,"lowItems":0,"noCountItems":100,"okItems":0,"suggestedOrderTotal":9.0},{"zone":"สต๊อกบาร์น้ำ","itemCount":42,"currentStockTotal":41.0,"lowItems":0,"noCountItems":32,"okItems":10,"suggestedOrderTotal":3.0},{"zone":"ครัว","itemCount":159,"currentStockTotal":100.0,"lowItems":0,"noCountItems":145,"okItems":14,"suggestedOrderTotal":0.0},{"zone":"หน้าร้าน","itemCount":52,"currentStockTotal":0.0,"lowItems":0,"noCountItems":52,"okItems":0,"suggestedOrderTotal":0.0}],"topOrder":[{"itemKey":"kitchen-phlaim-079","itemName":"มะนาว","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":30.0,"thresholdStock":30.0,"suggestedOrderQty":30.0,"unit":"ลูก"},{"itemKey":"kitchen-enuue-satw-001","itemName":"หมูสุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-002","itemName":"เนื้อสุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-003","itemName":"ไก่สุกี้","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":3.0,"targetPar":20.0,"thresholdStock":20.0,"suggestedOrderQty":17.0,"unit":"แพ็ค"},{"itemKey":"kitchen-aahaarthael-018","itemName":"เนื้อปูก้อน","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":5.0,"unit":"ถุง"},{"itemKey":"kitchen-ekhruue-ngain-014","itemName":"ไส้หมู","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":5.0,"targetPar":10.0,"thresholdStock":10.0,"suggestedOrderQty":5.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-017","itemName":"กุ้งทอดมัน","brand":"เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-015","itemName":"กุ้งสุกี้","brand":"เจ้เล็ก เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-016","itemName":"กุ้งแชบ๊วย","brand":"เจ้เล็ก","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-aahaarthael-019","itemName":"ปลากระพง / ตัว","brand":"ทะเลสามารถ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"ตัว"},{"itemKey":"kitchen-aahaarthael-021","itemName":"ปลาดุกย่าง","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"ตัว"},{"itemKey":"kitchen-phaksd-032","itemName":"ผักกาดขาว","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-phaksd-031","itemName":"ผักบุ้ง","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"targetPar":3.0,"thresholdStock":3.0,"suggestedOrderQty":3.0,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-006","itemName":"เปเดตุ็น","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":2.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":3.0,"unit":"ถุง"},{"itemKey":"kitchen-enuue-satw-007","itemName":"แพ๊ะตุ็น","brand":"-","basisZone":"สต๊อกของสด/ผัก","currentStock":2.0,"targetPar":5.0,"thresholdStock":5.0,"suggestedOrderQty":3.0,"unit":"ถุง"}],"watchlist":[{"itemKey":"kitchen-phlaim-079","itemName":"มะนาว","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":30.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":135},{"itemKey":"kitchen-aahaarthael-018","itemName":"เนื้อปูก้อน","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":5.0,"unit":"ถุง","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":110},{"itemKey":"kitchen-aahaarthael-017","itemName":"กุ้งทอดมัน","brand":"เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-015","itemName":"กุ้งสุกี้","brand":"เจ้เล็ก เจ้รอ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-016","itemName":"กุ้งแชบ๊วย","brand":"เจ้เล็ก","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-019","itemName":"ปลากระพง / ตัว","brand":"ทะเลสามารถ","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"ตัว","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-aahaarthael-021","itemName":"ปลาดุกย่าง","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"ตัว","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-032","itemName":"ผักกาดขาว","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-031","itemName":"ผักบุ้ง","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":3.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":108},{"itemKey":"kitchen-phaksd-040","itemName":"ขึ้นฉ่าย","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-030","itemName":"คะน้า","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-ehd-hn-aim-kh-ngd-ng-084","itemName":"ตั้งไฉ่","brand":"ตราอาเหลียง","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"กระปุก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-041","itemName":"ต้นหอม","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phaksd-033","itemName":"ผักกาดหอม","brand":"วงเวียนใหญ่/ปากคลองตลาด/เจ้จู","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-ehd-hn-aim-kh-ngd-ng-085","itemName":"มะนาวดอง","brand":"ส. เปงง้วน","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"กระปุก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phlaim-078","itemName":"มะพร้าวอ่อน","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-phlaim-076","itemName":"มะม่วง","brand":"วงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"ลูก","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107},{"itemKey":"kitchen-enuue-satw-008","itemName":"มันหมู","brand":"ตลาดวงเวียนใหญ่","basisZone":"สต๊อกของสด/ผัก","currentStock":0.0,"suggestedOrderQty":2.0,"unit":"โล","flags":["NO_COUNT_YET","ORDER","ZERO"],"priorityScore":107}],"topIssue30d":[{"itemKey":"stock-ekhruue-ngprung-007","itemName":"น้ำมันหอย","brand":"ตราแม่ครัว","zone":"ห้องสต๊อก","totalQty":5.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"front-ch-s-ekhruue-ngprung-015","itemName":"น้ำตาล","brand":"ตราวังขนาย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-ch-s-ekhruue-ngprung-145","itemName":"น้ำตาล","brand":"ตราวังขนาย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-ch-s-ekhruue-ngprung-149","itemName":"น้ำมันพืช","brand":"King","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-008","itemName":"นํ้าแดง","brand":"มิรันด้า","zone":"สต๊อกบาร์น้ำ","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"stock-esn-khaaw-020","itemName":"หมี่ฮ่องกง","brand":"ตรากระต่าย","zone":"ห้องสต๊อก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"bar-ekhruue-ngduuem-004","itemName":"เปเปซี่ ใหญ่","brand":"Pepsi","zone":"สต๊อกบาร์น้ำ","totalQty":2.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-011","itemName":"M-150","brand":"M-150","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"stock-kh-ngaehng-039","itemName":"กระเพาะปลา","brand":"ร้านเฮียโบ้","zone":"ห้องสต๊อก","totalQty":1.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-kathi-nm-175","itemName":"นมจืด","brand":"โฟร์โมสต์","zone":"ห้องสต๊อก","totalQty":1.0,"eventCount":1,"unit":"กล่อง"},{"itemKey":"bar-ekhruue-ngduuem-001","itemName":"นํ้ากลาง","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-002","itemName":"นํ้าใหญ่","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":1.0,"eventCount":1,"unit":"ขวด"}],"topReceive30d":[{"itemKey":"bar-ekhruue-ngduuem-001","itemName":"นํ้ากลาง","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":10.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"bar-ekhruue-ngduuem-002","itemName":"นํ้าใหญ่","brand":"สิงห์","zone":"สต๊อกบาร์น้ำ","totalQty":10.0,"eventCount":1,"unit":"ขวด"},{"itemKey":"19.0","itemName":"100.0","brand":"225.0","zone":"-","totalQty":3.0,"eventCount":1,"unit":"2026-03-17T06:40:13.626209Z"},{"itemKey":"kitchen-enuue-satw-004","itemName":"หมูสับ","brand":"ตลาดวงเวียนใหญ่","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-001","itemName":"หมูสุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-002","itemName":"เนื้อสุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-005","itemName":"ไก่สับ","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"โล"},{"itemKey":"kitchen-enuue-satw-003","itemName":"ไก่สุกี้","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":3.0,"eventCount":1,"unit":"แพ็ค"},{"itemKey":"kitchen-enuue-satw-006","itemName":"เปเดตุ็น","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":2.0,"eventCount":1,"unit":"ถุง"},{"itemKey":"kitchen-enuue-satw-007","itemName":"แพ๊ะตุ็น","brand":"-","zone":"สต๊อกของสด/ผัก","totalQty":2.0,"eventCount":1,"unit":"ถุง"}],"dataQuality":[{"check":"Master active without unit","status":"ok","value":0,"note":"active item ควรมี unit"},{"check":"Stock rows without latest count timestamp","status":"warn","value":417,"note":"ใช้ตรวจแถวที่อาจยังไม่เคยนับ"},{"check":"Order rows with suggested order > 0","status":"info","value":100,"note":"ใช้เป็นรายการที่ควรดูวันนี้"},{"check":"Snapshot lag from latest activity (days)","status":"warn","value":5,"note":"ถ้ามากกว่า 0 หมายถึง snapshot ยังไม่ทัน activity ล่าสุด"}]};
     const els = {};
     const state = {
       payload: null,
-      source: 'boot'
+      source: 'boot',
+      adjustCatalog: [],
+      selectedAdjustItemKey: '',
+      adjustFilter: ''
     };
 
     const byId = (id) => document.getElementById(id);
@@ -288,7 +404,10 @@ const APP_CONFIG = {
       return `${day}/${month}/${year}`;
     };
     const toneClass = (tone) => `tone-${tone || 'count'}`;
-    const flagClass = (flag) => flag === 'NO_COUNT_YET' ? 'no_count' : flag.toLowerCase();
+    const flagClass = (flag) => flag === 'NO_COUNT_YET' ? 'no_count' : flag === 'ADJUSTED' ? 'adjusted' : flag.toLowerCase();
+
+    const itemLabel = (item) => item?.displayName || [item?.itemName, item?.brand && item?.brand !== '-' && !String(item?.itemName || '').includes(item?.brand) ? item?.brand : '', item?.unit].filter(Boolean).join(' • ');
+    const normalizeText = (v) => String(v ?? '').toLowerCase().trim();
 
     function init() {
       els.statusPill = byId('statusPill');
@@ -305,8 +424,31 @@ const APP_CONFIG = {
       els.topIssue = byId('topIssue');
       els.topReceive = byId('topReceive');
       els.dataQuality = byId('dataQuality');
+      els.adjustFilter = byId('adjustFilter');
+      els.adjustPicker = byId('adjustPicker');
+      els.adjustSelected = byId('adjustSelected');
+      els.adjustModeBadge = byId('adjustModeBadge');
+      els.adjustEmployee = byId('adjustEmployee');
+      els.adjustMode = byId('adjustMode');
+      els.adjustQty = byId('adjustQty');
+      els.adjustQtyLabel = byId('adjustQtyLabel');
+      els.adjustReason = byId('adjustReason');
+      els.adjustNote = byId('adjustNote');
+      els.adjustPreview = byId('adjustPreview');
+      els.adjustSubmitBtn = byId('adjustSubmitBtn');
+      els.adjustInlineStatus = byId('adjustInlineStatus');
+      els.recentAdjusts = byId('recentAdjusts');
+
       byId('reloadBtn').addEventListener('click', () => loadDashboard({forceLive:true}));
       byId('refreshBtn').addEventListener('click', adminRefresh);
+      els.adjustFilter.addEventListener('input', () => {
+        state.adjustFilter = els.adjustFilter.value || '';
+        renderAdjustPicker();
+      });
+      els.adjustMode.addEventListener('change', renderAdjustSelected);
+      els.adjustQty.addEventListener('input', renderAdjustSelected);
+      els.adjustReason.addEventListener('change', renderAdjustSelected);
+      els.adjustSubmitBtn.addEventListener('click', submitAdjust);
       loadDashboard();
     }
 
@@ -413,7 +555,7 @@ const APP_CONFIG = {
               </div>
             </div>
             <div class="zone-track"><div class="zone-fill" style="width:${width}%"></div></div>
-            <div class="section-note">no count ${fmtNum(row.noCountItems)} • stock รวม ${fmtNum(row.currentStockTotal)}</div>
+            <div class="section-note">no count ${fmtNum(row.noCountItems)} • adjusted ${fmtNum(row.adjustedItems || 0)} • stock รวม ${fmtNum(row.currentStockTotal)}</div>
           </article>`;
       }).join('');
     }
@@ -459,6 +601,180 @@ const APP_CONFIG = {
       )).join('');
     }
 
+
+    function renderAdjustModule(payload={}) {
+      state.adjustCatalog = Array.isArray(payload.adjustCatalog) ? payload.adjustCatalog : [];
+      renderAdjustReasons(payload.adjustReasons || []);
+      if (!state.selectedAdjustItemKey && state.adjustCatalog.length) {
+        state.selectedAdjustItemKey = state.adjustCatalog[0].itemKey;
+      }
+      if (state.selectedAdjustItemKey && !findAdjustItem(state.selectedAdjustItemKey)) {
+        state.selectedAdjustItemKey = state.adjustCatalog[0]?.itemKey || '';
+      }
+      els.adjustModeBadge.textContent = `admin only • ${fmtNum((payload.recentAdjusts || []).length)} recent`;
+      renderAdjustPicker();
+      renderAdjustSelected();
+      renderRecentAdjusts(payload.recentAdjusts || []);
+    }
+
+    function renderAdjustReasons(reasons=[]) {
+      const current = els.adjustReason.value;
+      els.adjustReason.innerHTML = reasons.map(reason => `<option value="${esc(reason.code)}">${esc(reason.label)}</option>`).join('');
+      if (current && Array.from(els.adjustReason.options).some(opt => opt.value === current)) {
+        els.adjustReason.value = current;
+      }
+    }
+
+    function findAdjustItem(itemKey) {
+      return state.adjustCatalog.find(item => item.itemKey === itemKey) || null;
+    }
+
+    function selectAdjustItem(itemKey) {
+      state.selectedAdjustItemKey = itemKey;
+      renderAdjustPicker();
+      renderAdjustSelected();
+    }
+
+    function renderAdjustPicker() {
+      const term = normalizeText(state.adjustFilter);
+      const filtered = state.adjustCatalog.filter(item => {
+        if (!term) return true;
+        const hay = normalizeText([item.displayName, item.itemKey, item.brand, item.basisZone].join(' '));
+        return hay.includes(term);
+      }).slice(0, 40);
+
+      els.adjustPicker.innerHTML = filtered.length ? filtered.map(item => `
+        <button class="picker-item ${item.itemKey === state.selectedAdjustItemKey ? 'active' : ''}" type="button" data-item-key="${esc(item.itemKey)}">
+          <div class="picker-name">${esc(item.displayName || itemLabel(item))}</div>
+          <div class="picker-meta">โซน ${esc(item.basisZone || '-')} • stock ${fmtNum(item.currentStock)} ${esc(item.unit || '')} • ${esc(item.status || '-')}</div>
+        </button>
+      `).join('') : `<div class="empty-state">ไม่พบรายการที่ตรงกับคำค้น</div>`;
+
+      Array.from(els.adjustPicker.querySelectorAll('[data-item-key]')).forEach(btn => {
+        btn.addEventListener('click', () => selectAdjustItem(btn.getAttribute('data-item-key')));
+      });
+    }
+
+    function renderAdjustSelected() {
+      const item = findAdjustItem(state.selectedAdjustItemKey);
+      const mode = els.adjustMode.value || 'delta';
+      const qty = Number(els.adjustQty.value || 0);
+      const qtyValid = els.adjustQty.value !== '' && Number.isFinite(qty);
+      const currentStock = Number(item?.currentStock || 0);
+      const projected = mode === 'absolute' ? qty : currentStock + qty;
+      const invalidProjected = qtyValid && projected < 0;
+      const needsCountText = item?.needsCountReview ? 'ยังไม่เคยนับ' : 'มี count แล้ว';
+
+      els.adjustQtyLabel.textContent = mode === 'absolute' ? 'ตั้งยอดใหม่' : 'จำนวนปรับ (+/-)';
+
+      if (!item) {
+        els.adjustSelected.innerHTML = `<div class="empty-state">เลือกสินค้าจากรายการด้านบนก่อน</div>`;
+        els.adjustPreview.innerHTML = `<div class="preview-label">Preview</div><div class="preview-value">-</div><div class="preview-sub">ยังไม่ได้เลือกสินค้า</div>`;
+        els.adjustInlineStatus.textContent = 'ยังไม่ได้เลือกสินค้า';
+        els.adjustSubmitBtn.disabled = true;
+        return;
+      }
+
+      els.adjustSelected.innerHTML = `
+        <div class="selected-top">
+          <div>
+            <div class="selected-name">${esc(item.displayName || itemLabel(item))}</div>
+            <div class="selected-meta">item key: ${esc(item.itemKey)} • โซน ${esc(item.basisZone || '-')}</div>
+          </div>
+        </div>
+        <div class="selected-pills">
+          <span class="mini-pill">stock ${fmtNum(currentStock)} ${esc(item.unit || '')}</span>
+          <span class="mini-pill">${esc(item.status || '-')}</span>
+          <span class="mini-pill">${esc(needsCountText)}</span>
+          ${item.adjusted ? `<span class="mini-pill">adjusted ล่าสุด ${esc(fmtDateThai(item.lastAdjustAt))}</span>` : ''}
+        </div>
+      `;
+
+      let previewTitle = mode === 'absolute' ? 'หลังตั้งยอดใหม่' : 'หลัง apply delta';
+      let previewValue = qtyValid ? fmtNum(projected) : '-';
+      let previewSub = mode === 'absolute'
+        ? 'current ' + fmtNum(currentStock) + ' → target ' + (qtyValid ? fmtNum(qty) : '-')
+        : 'current ' + fmtNum(currentStock) + (qtyValid ? ' + delta ' + fmtNum(qty) : ' + delta -');
+
+      if (invalidProjected) {
+        previewTitle = 'ไม่สามารถบันทึก';
+        previewValue = fmtNum(projected);
+        previewSub = 'stock หลังปรับจะติดลบ ซึ่งระบบไม่อนุญาต';
+      }
+
+      els.adjustPreview.innerHTML = `
+        <div class="preview-label">${esc(previewTitle)}</div>
+        <div class="preview-value">${previewValue}</div>
+        <div class="preview-sub">${esc(previewSub)}</div>
+      `;
+
+      const actorReady = !!els.adjustEmployee.value.trim();
+      const reasonReady = !!els.adjustReason.value;
+      const canSubmit = !!item && qtyValid && actorReady && reasonReady && !invalidProjected && (mode === 'absolute' ? qty >= 0 : qty !== 0);
+      els.adjustSubmitBtn.disabled = !canSubmit;
+      els.adjustInlineStatus.textContent = canSubmit
+        ? `พร้อมบันทึก • ${mode === 'absolute' ? 'set' : 'delta'}`
+        : 'กรอกผู้ทำรายการ / จำนวน / เหตุผล ให้ครบ';
+    }
+
+    function renderRecentAdjusts(rows=[]) {
+      els.recentAdjusts.innerHTML = rows.length ? rows.map(row => rowCardLeft(
+        esc(itemLabel(row)),
+        `เหตุผล: ${esc(row.reasonCode || '-')}<br>โซน: ${esc(row.basisZone || '-')} • โดย ${esc(row.actor || '-')} • ${esc(fmtDateThai(row.timestamp))}` + (row.note ? `<div class="recent-adjust-note">${esc(row.note)}</div>` : ''),
+        `<span class="metric-pill">${esc(row.adjustMode === 'absolute' ? 'set' : 'delta')} ${fmtNum(row.qty)}</span><span class="metric-pill">${fmtNum(row.beforeStock)} → ${fmtNum(row.afterStock)}</span>`,
+        `<span class="flag adjusted">ADJUSTED</span>`
+      )).join('') : `<div class="empty-state">ยังไม่มี adjust log ในไฟล์นี้</div>`;
+    }
+
+    async function submitAdjust() {
+      const item = findAdjustItem(state.selectedAdjustItemKey);
+      if (!item) return;
+      const actor = els.adjustEmployee.value.trim();
+      const mode = els.adjustMode.value || 'delta';
+      const qty = Number(els.adjustQty.value || 0);
+      const reasonCode = els.adjustReason.value;
+      const note = els.adjustNote.value.trim();
+
+      if (!actor || !reasonCode || !Number.isFinite(qty) || (mode === 'delta' && qty === 0) || (mode === 'absolute' && qty < 0)) {
+        renderAdjustSelected();
+        return;
+      }
+
+      const token = sessionStorage.getItem('JRT_OPS_ADMIN_TOKEN') || window.prompt('กรอก JRT OPS ADMIN TOKEN');
+      if (!token) return;
+      sessionStorage.setItem('JRT_OPS_ADMIN_TOKEN', token);
+
+      const projected = mode === 'absolute' ? qty : Number(item.currentStock || 0) + qty;
+      if (projected < 0) {
+        renderAdjustSelected();
+        return;
+      }
+
+      els.adjustSubmitBtn.disabled = true;
+      setStatus('กำลังบันทึก adjust...', 'info');
+      try {
+        const result = await jsonp('createAdjust', {
+          token,
+          itemKey: item.itemKey,
+          adjustMode: mode,
+          qty: String(qty),
+          reasonCode,
+          note,
+          actor
+        }, 25000);
+        if (!result || result.ok === false) throw new Error(result?.error || 'createAdjust failed');
+        els.adjustQty.value = '';
+        els.adjustNote.value = '';
+        await loadDashboard({forceLive:true});
+        setStatus(`adjust สำเร็จ • ${item.displayName || itemLabel(item)}`, 'ok');
+      } catch (error) {
+        console.error(error);
+        setStatus(`adjust ไม่สำเร็จ: ${error.message}`, 'danger');
+      } finally {
+        renderAdjustSelected();
+      }
+    }
+
     function renderDataQuality(rows=[]) {
       els.dataQuality.innerHTML = rows.map(row => `
         <div class="health-row">
@@ -486,6 +802,7 @@ const APP_CONFIG = {
       renderTopOrder(payload.topOrder || []);
       renderActivity(els.topIssue, payload.topIssue30d || []);
       renderActivity(els.topReceive, payload.topReceive30d || []);
+      renderAdjustModule(payload);
       renderDataQuality(payload.dataQuality || []);
     }
 
