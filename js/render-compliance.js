@@ -1,0 +1,69 @@
+
+import { esc, fmtNum, fmtPct, fmtDateThai, itemLabel } from './utils.js';
+import { rowCardLeft } from './render-core.js';
+
+export function renderCountCompliance(els, compliance = {}, onItemClick) {
+  const daily = compliance.daily || { expected: 0, counted: 0, missing: 0, compliancePct: 0 };
+  const weekly = compliance.weekly || { expected: 0, counted: 0, missing: 0, compliancePct: 0, weekStart: '', weekEnd: '' };
+
+  els.dailySummaryTile.innerHTML = `
+    <div class="label">Daily count compliance</div>
+    <div class="value">${fmtPct(daily.compliancePct)}</div>
+    <div class="helper">ครบ ${fmtNum(daily.counted)} / ${fmtNum(daily.expected)} • ค้าง ${fmtNum(daily.missing)}</div>
+  `;
+  els.weeklySummaryTile.innerHTML = `
+    <div class="label">Weekly count compliance</div>
+    <div class="value">${fmtPct(weekly.compliancePct)}</div>
+    <div class="helper">ครบ ${fmtNum(weekly.counted)} / ${fmtNum(weekly.expected)} • ค้าง ${fmtNum(weekly.missing)} • ${esc(weekly.weekStart || '-')} ถึง ${esc(weekly.weekEnd || '-')}</div>
+  `;
+
+  els.dailyDepartments.innerHTML = (compliance.departmentsDaily || []).map((row) => `
+    <div class="compliance-row">
+      <div>
+        <div class="compliance-title">${esc(row.department)}</div>
+        <div class="compliance-sub">daily • last count ${esc(fmtDateThai(row.lastCountAt))}</div>
+      </div>
+      <div class="compliance-side">
+        <span class="mini-pill">${fmtPct(row.compliancePct)}</span>
+        <span class="mini-pill">ครบ ${fmtNum(row.counted)} / ${fmtNum(row.expected)}</span>
+        <span class="mini-pill">ค้าง ${fmtNum(row.missing)}</span>
+      </div>
+    </div>
+  `).join('') || `<div class="empty-state">ยังไม่มี daily policy</div>`;
+
+  els.weeklyDepartments.innerHTML = (compliance.departmentsWeekly || []).map((row) => `
+    <div class="compliance-row">
+      <div>
+        <div class="compliance-title">${esc(row.department)}</div>
+        <div class="compliance-sub">weekly • ${esc(row.weekStart || '-')} ถึง ${esc(row.weekEnd || '-')} • last count ${esc(fmtDateThai(row.lastCountAt))}</div>
+      </div>
+      <div class="compliance-side">
+        <span class="mini-pill">${fmtPct(row.compliancePct)}</span>
+        <span class="mini-pill">ครบ ${fmtNum(row.counted)} / ${fmtNum(row.expected)}</span>
+        <span class="mini-pill">ค้าง ${fmtNum(row.missing)}</span>
+      </div>
+    </div>
+  `).join('') || `<div class="empty-state">ยังไม่มี weekly policy</div>`;
+
+  els.missingDailyItems.innerHTML = (compliance.missingDailyItems || []).length ? (compliance.missingDailyItems || []).map((row) => rowCardLeft(
+    esc(row.displayName || itemLabel(row)),
+    `แผนก: ${esc(row.department || '-')}<br>latest count: ${esc(fmtDateThai(row.latestCountAt))}`,
+    `<span class="metric-pill">daily</span>`,
+    `<span class="flag no_count">MISSING</span>`,
+    row.itemKey ? `data-item-key="${esc(row.itemKey)}"` : ''
+  )).join('') : `<div class="empty-state">daily count เข้าครบตาม policy แล้ว</div>`;
+
+  els.missingWeeklyItems.innerHTML = (compliance.missingWeeklyItems || []).length ? (compliance.missingWeeklyItems || []).map((row) => rowCardLeft(
+    esc(row.displayName || itemLabel(row)),
+    `แผนก: ${esc(row.department || '-')}<br>latest count: ${esc(fmtDateThai(row.latestCountAt))} • week ${esc(row.weekStart || '-')} ถึง ${esc(row.weekEnd || '-')}`,
+    `<span class="metric-pill">weekly</span>`,
+    `<span class="flag no_count">MISSING</span>`,
+    row.itemKey ? `data-item-key="${esc(row.itemKey)}"` : ''
+  )).join('') : `<div class="empty-state">weekly count เข้าครบตาม policy แล้ว</div>`;
+
+  [els.missingDailyItems, els.missingWeeklyItems].forEach((root) => {
+    Array.from(root.querySelectorAll('[data-item-key]')).forEach((el) => {
+      el.addEventListener('click', () => onItemClick?.(el.getAttribute('data-item-key')));
+    });
+  });
+}
