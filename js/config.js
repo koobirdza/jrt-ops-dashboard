@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
   api: {
-    baseUrl: "https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec",
+    baseUrl: "https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec",
     timeoutMs: 12000
   },
   cacheKey: 'jrt_ops_dashboard_v3_cache',
