@@ -1,10 +1,39 @@
-
 import { APP_CONFIG, EMPTY_PAYLOAD } from './config.js';
 import { state, saveCachedPayload, getCachedPayload } from './store.js';
 import { byId, debounce } from './utils.js';
-import { fetchDashboard, adminRefreshDashboard, createAdjust, listRecentAdjusts, fetchItemAudit } from './api.js';
-import { setStatus, setSource, renderWarnings, renderActionBoard, renderKpis, buildSvgTrend, renderZones, renderWatchlist, renderTopOrder, renderActivity, renderDataQuality } from './render-core.js';
-import { renderAdjustModule, renderAdjustPicker, bindAdjustPicker, renderAdjustSelected, renderRecentAdjusts, findAdjustItem } from './render-adjust.js';
+import {
+  fetchDashboardSummary,
+  fetchDashboardInventory,
+  fetchDashboardActivity,
+  fetchDashboardAdjustData,
+  fetchDashboardCompliance,
+  fetchHealth,
+  adminRefreshDashboard,
+  createAdjust,
+  listRecentAdjusts,
+  fetchItemAudit
+} from './api.js';
+import {
+  setStatus,
+  setSource,
+  renderWarnings,
+  renderActionBoard,
+  renderKpis,
+  buildSvgTrend,
+  renderZones,
+  renderWatchlist,
+  renderTopOrder,
+  renderActivity,
+  renderDataQuality
+} from './render-core.js';
+import {
+  renderAdjustModule,
+  renderAdjustPicker,
+  bindAdjustPicker,
+  renderAdjustSelected,
+  renderRecentAdjusts,
+  findAdjustItem
+} from './render-adjust.js';
 import { renderCountCompliance } from './render-compliance.js';
 import { renderAuditPanel } from './render-audit.js';
 
@@ -22,8 +51,19 @@ function initEls() {
   ids.forEach((id) => { els[id] = byId(id); });
 }
 
-function render(payload, source = 'live') {
-  state.payload = payload;
+function ensureBasePayload() {
+  if (!state.payload) state.payload = JSON.parse(JSON.stringify(EMPTY_PAYLOAD));
+  return state.payload;
+}
+
+function mergePayload(partial = {}) {
+  const base = ensureBasePayload();
+  state.payload = { ...base, ...partial, meta: { ...(base.meta || {}), ...(partial.meta || {}) } };
+  return state.payload;
+}
+
+function renderAll(source = state.source || 'pending') {
+  const payload = ensureBasePayload();
   state.source = source;
   setSource(els, source);
   renderWarnings(els, payload.meta?.warnings || []);
@@ -49,6 +89,54 @@ function render(payload, source = 'live') {
   }
 }
 
+function saveSnapshot() {
+  try { saveCachedPayload(state.payload); } catch (error) {}
+}
+
+function applySummaryPayload(payload) {
+  mergePayload(payload);
+  renderAll(state.source || 'live');
+  saveSnapshot();
+}
+
+function applyInventoryPayload(payload) {
+  mergePayload({
+    zoneSummary: payload.zoneSummary || [],
+    watchlist: payload.watchlist || [],
+    topOrder: payload.topOrder || [],
+    dataQuality: payload.dataQuality || []
+  });
+  renderAll(state.source || 'live');
+  saveSnapshot();
+}
+
+function applyActivityPayload(payload) {
+  mergePayload({
+    dailyTrends: payload.dailyTrends || [],
+    topIssue30d: payload.topIssue30d || [],
+    topReceive30d: payload.topReceive30d || []
+  });
+  renderAll(state.source || 'live');
+  saveSnapshot();
+}
+
+function applyAdjustPayload(payload) {
+  mergePayload({
+    adjustCatalog: payload.adjustCatalog || [],
+    adjustReasons: payload.adjustReasons || [],
+    recentAdjusts: payload.recentAdjusts || []
+  });
+  state.recentAdjusts = Array.isArray(payload.recentAdjusts) ? payload.recentAdjusts : [];
+  renderAll(state.source || 'live');
+  saveSnapshot();
+}
+
+function applyCompliancePayload(payload) {
+  mergePayload({ countCompliance: payload.countCompliance || EMPTY_PAYLOAD.countCompliance });
+  renderAll(state.source || 'live');
+  saveSnapshot();
+}
+
 function getAdminTokenForWrite() {
   const existing = sessionStorage.getItem('JRT_OPS_ADMIN_TOKEN');
   if (existing) return existing;
@@ -58,45 +146,78 @@ function getAdminTokenForWrite() {
   return prompted;
 }
 
+async function loadModule(label, fetcher, applier, options = {}) {
+  try {
+    const payload = await fetcher();
+    if (!payload || payload.ok === false) throw new Error(payload?.error || `${label} failed`);
+    applier(payload);
+    return { ok: true, cached: payload.cached === true };
+  } catch (error) {
+    if (!options.silent) setStatus(els, `โหลด ${label} ไม่สำเร็จ: ${error.message}`, 'warn');
+    return { ok: false, error };
+  }
+}
+
 async function loadDashboard(options = {}) {
   const cached = getCachedPayload();
   if (cached?.payload && !options.forceLive) {
-    render(cached.payload, (Date.now() - cached.savedAt) <= APP_CONFIG.cacheAgeMs ? 'stale' : 'fallback');
+    state.payload = cached.payload;
+    state.source = (Date.now() - cached.savedAt) <= APP_CONFIG.cacheAgeMs ? 'stale' : 'fallback';
+    renderAll(state.source);
     setStatus(els, 'แสดง cache ระหว่างโหลด live...', 'warn');
   } else {
+    state.payload = JSON.parse(JSON.stringify(EMPTY_PAYLOAD));
+    state.source = 'pending';
+    renderAll('pending');
     setStatus(els, 'กำลังโหลด live data...', 'info');
   }
 
-  try {
-    const payload = await fetchDashboard();
-    if (!payload || payload.ok === false) throw new Error(payload?.error || 'backend returned invalid payload');
-    saveCachedPayload(payload);
-    render(payload, 'live');
-    setStatus(els, `live พร้อมใช้ • อัปเดต ${payload.generatedAt || payload.meta?.latestSnapshotDate || '-'}`, 'ok');
-    if (state.recentAdjustFilters.range) {
-      loadRecentAdjusts().catch(() => {});
-    }
-  } catch (error) {
+  await loadModule('health', fetchHealth, () => {}, { silent: true });
+  const summary = await loadModule('summary', fetchDashboardSummary, (payload) => {
+    state.source = 'live';
+    applySummaryPayload(payload);
+  }, { silent: true });
+
+  if (!summary.ok) {
     if (cached?.payload) {
-      render(cached.payload, 'stale');
-      setStatus(els, 'โหลด live ไม่สำเร็จ • ใช้ cache ล่าสุดแทน', 'warn');
+      state.source = 'stale';
+      renderAll('stale');
+      setStatus(els, 'โหลด summary ไม่สำเร็จ • ใช้ cache ล่าสุดแทน', 'warn');
       return;
     }
-    render(EMPTY_PAYLOAD, 'fallback');
-    setStatus(els, `โหลด backend ไม่สำเร็จ • ${error.message}`, 'warn');
+    state.payload = JSON.parse(JSON.stringify(EMPTY_PAYLOAD));
+    renderAll('fallback');
+    setStatus(els, `โหลด backend ไม่สำเร็จ • ${summary.error.message}`, 'warn');
+    return;
   }
+
+  const results = await Promise.all([
+    loadModule('inventory', fetchDashboardInventory, applyInventoryPayload, { silent: true }),
+    loadModule('activity', fetchDashboardActivity, applyActivityPayload, { silent: true }),
+    loadModule('adjust', fetchDashboardAdjustData, applyAdjustPayload, { silent: true }),
+    loadModule('compliance', fetchDashboardCompliance, applyCompliancePayload, { silent: true })
+  ]);
+
+  const failed = results.filter((row) => !row.ok).length;
+  if (failed) {
+    setStatus(els, `โหลด live สำเร็จบางส่วน • module fail ${failed} จุด`, 'warn');
+  } else {
+    setStatus(els, `live พร้อมใช้ • อัปเดต ${state.payload.generatedAt || state.payload.meta?.latestSnapshotDate || '-'}`, 'ok');
+  }
+
+  if (state.recentAdjustFilters.range) loadRecentAdjusts().catch(() => {});
 }
 
 async function adminRefresh() {
   const token = getAdminTokenForWrite();
   if (!token) return;
-  setStatus(els, 'กำลัง rebuild summary...', 'info');
+  setStatus(els, 'กำลัง rebuild module caches...', 'info');
   els.refreshBtn.disabled = true;
   try {
     const result = await adminRefreshDashboard(token);
     if (!result || result.ok === false) throw new Error(result?.error || 'refresh failed');
     await loadDashboard({ forceLive: true });
-    setStatus(els, 'refresh สำเร็จ • summary ถูก rebuild แล้ว', 'ok');
+    setStatus(els, 'refresh สำเร็จ • module caches ถูก rebuild แล้ว', 'ok');
   } catch (error) {
     setStatus(els, `refresh ไม่สำเร็จ: ${error.message}`, 'danger');
   } finally {
@@ -173,9 +294,7 @@ async function loadRecentAdjusts() {
 async function openAuditForItem(itemKey, options = {}) {
   if (!itemKey) return;
   state.auditItemKey = itemKey;
-  if (!options.silent) {
-    setStatus(els, 'กำลังโหลด item audit trail...', 'info');
-  }
+  if (!options.silent) setStatus(els, 'กำลังโหลด item audit trail...', 'info');
   try {
     const payload = await fetchItemAudit({ itemKey, limit: APP_CONFIG.auditLimit });
     if (!payload || payload.ok === false) throw new Error(payload?.error || 'itemAuditTrail failed');
@@ -220,12 +339,11 @@ function bindEvents() {
   els.adjustSearchFilter.addEventListener('input', debounce(loadRecentAdjusts, 250));
 }
 
-function init() {
+function boot() {
   initEls();
   bindEvents();
-  render(EMPTY_PAYLOAD, 'pending');
-  setStatus(els, 'กำลังเริ่มต้น...', 'info');
+  renderAll('pending');
   loadDashboard();
 }
 
-window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('DOMContentLoaded', boot);

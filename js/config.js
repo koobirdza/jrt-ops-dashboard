@@ -1,18 +1,16 @@
-
 export const APP_CONFIG = {
   api: {
-    baseUrl: "https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec",
-    defaultAction: 'dashboardBootstrap',
+    baseUrl: "https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec",
     timeoutMs: 12000
   },
-  cacheKey: 'jrt_ops_dashboard_v2_2_cache',
+  cacheKey: 'jrt_ops_dashboard_v3_cache',
   cacheAgeMs: 15 * 60 * 1000,
   auditLimit: 50
 };
 
 export const EMPTY_PAYLOAD = {
   ok: true,
-  appVersion: '2.2.0-count-compliance-v1_1',
+  appVersion: '3.0.0-modular-split-api',
   generatedAt: new Date().toISOString(),
   dataAsOf: '',
   meta: {

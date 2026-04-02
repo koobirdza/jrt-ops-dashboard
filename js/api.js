@@ -1,4 +1,3 @@
-
 import { APP_CONFIG } from './config.js';
 
 export function buildUrl(action, params = {}) {
@@ -30,7 +29,13 @@ export function jsonp(action, params = {}, timeoutMs = APP_CONFIG.api.timeoutMs)
   });
 }
 
-export const fetchDashboard = () => jsonp(APP_CONFIG.api.defaultAction);
+export const fetchDashboardSummary = () => jsonp('dashboardSummary');
+export const fetchDashboardInventory = () => jsonp('dashboardInventory');
+export const fetchDashboardActivity = () => jsonp('dashboardActivity');
+export const fetchDashboardAdjustData = () => jsonp('dashboardAdjustData');
+export const fetchDashboardCompliance = () => jsonp('dashboardCompliance');
+export const fetchHealth = () => jsonp('health');
+
 export const adminRefreshDashboard = (token) => jsonp('adminRefreshDashboard', { token }, 25000);
 export const createAdjust = (params) => jsonp('createAdjust', params, 25000);
 export const listRecentAdjusts = (params) => jsonp('listRecentAdjusts', params, 25000);
