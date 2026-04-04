@@ -200,7 +200,7 @@ async function loadDashboard(options = {}) {
 
   const failed = results.filter((row) => !row.ok).length;
   if (failed) {
-    setStatus(els, `โหลด live สำเร็จบางส่วน • module fail ${failed} จุด`, 'warn');
+    setStatus(els, `โหลด live สำเร็จบางส่วน • มี module fail ${failed} จุด`, 'warn');
   } else {
     setStatus(els, `live พร้อมใช้ • อัปเดต ${state.payload.generatedAt || state.payload.meta?.latestSnapshotDate || '-'}`, 'ok');
   }

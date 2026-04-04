@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
   api: {
-    baseUrl: "https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec",
+    baseUrl: "https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec",
     timeoutMs: 12000
   },
   cacheKey: 'jrt_ops_dashboard_v3_cache',
@@ -10,7 +10,7 @@ export const APP_CONFIG = {
 
 export const EMPTY_PAYLOAD = {
   ok: true,
-  appVersion: '3.0.0-modular-split-api',
+  appVersion: '4.2.0-structured-lean-ops',
   generatedAt: new Date().toISOString(),
   dataAsOf: '',
   meta: {
@@ -39,6 +39,8 @@ export const EMPTY_PAYLOAD = {
     weekly: { expected: 0, counted: 0, missing: 0, compliancePct: 0, weekStart: '', weekEnd: '' },
     departmentsDaily: [],
     departmentsWeekly: [],
+    dailyStations: [],
+    weeklyRooms: [],
     missingDailyItems: [],
     missingWeeklyItems: []
   }
