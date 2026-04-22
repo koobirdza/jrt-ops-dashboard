@@ -1,21 +1,20 @@
-
 <!doctype html>
 <html lang="th">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#12304a" />
-  <title>JRT Ops v4.2 Structured Lean Ops</title>
+  <title>JRT Ops v4.4 Policy-Driven Today</title>
   <link rel="stylesheet" href="./css/styles.css" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2312304a'/%3E%3Cpath fill='white' d='M14 38h18l4-10h14l-4 12c-.7 2.1-2.7 3.5-4.9 3.5H20.5c-2.3 0-4.4-1.5-5.1-3.7L10 20h6l2.3 8H34l2-6h6l-2 6h10v4H36l-2 6H18.1z'/%3E%3C/svg%3E" />
 </head>
 <body>
-  <div class="app">
+  <div class="app today-app">
     <header class="header">
       <div class="header-top">
         <div class="brand">
-          <h1>JRT Ops v4.2 Structured Lean Ops</h1>
-          <p>structured-lean workbook • daily station checks • weekly stock room checks • adjust module • item audit</p>
+          <h1>JRT Ops v4.4 Policy-Driven Today</h1>
+          <p>operations control panel สำหรับผู้จัดการร้าน • policy-driven today logic • daily station + weekly stock room checks</p>
         </div>
         <div class="header-actions">
           <button id="refreshBtn" class="btn btn-primary" type="button">Admin Refresh</button>
@@ -32,102 +31,75 @@
     </header>
 
     <main class="main">
-      <section id="actionBoard" class="action-grid"></section>
-
-      <section class="section">
+      <section class="section today-hero">
         <div class="section-head">
           <div>
-            <h2>KPI Snapshot</h2>
-            <div class="section-note">ภาพรวมหลักที่เจ้าของร้านควรเห็นก่อนเป็นอันดับแรก</div>
+            <h2>Today</h2>
+            <div class="section-note">หน้าหลักสำหรับเช็กความเรียบร้อยของร้านในแต่ละวัน ว่าวันนี้อะไรเสร็จแล้ว อะไรยังค้าง และอะไรต้องรีบจัดการ</div>
           </div>
-          <div class="section-tag">Overview</div>
+          <div class="section-tag">Manager View</div>
         </div>
-        <div id="kpiGrid" class="kpi-grid"></div>
+        <section id="actionBoard" class="action-grid"></section>
+        <div id="kpiGrid" class="kpi-grid compact-kpis"></div>
       </section>
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <h2>Count Compliance</h2>
-            <div class="section-note">เช็กว่าสินค้าที่ต้องนับรายวันจากแต่ละสเตชั่น และรายสัปดาห์จากแต่ละห้องสต๊อก เข้าครบหรือยัง</div>
+      <div class="split-equal today-priority-grid">
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2>Count Compliance Today</h2>
+              <div class="section-note">ดูทันทีว่าวันนี้ policy บอกให้สเตชั่นไหนและห้องสต๊อกไหนต้องนับ และทำครบหรือยัง</div>
+            </div>
+            <div class="section-tag">Check</div>
           </div>
-          <div class="section-tag">Discipline</div>
-        </div>
-        <div class="compliance-grid">
-          <div class="control-card">
-            <div class="summary-tiles">
-              <div id="dailySummaryTile" class="summary-tile"></div>
-              <div id="weeklySummaryTile" class="summary-tile"></div>
-            </div>
-            <div style="height:12px"></div>
-            <div class="section-head" style="margin-bottom:10px">
-              <div>
-                <div class="control-title">Station / stock room status</div>
-                <div class="control-note">daily แสดงตามสเตชั่น • weekly แสดงตามห้องสต๊อก เพื่อให้ผู้จัดการเช็กงานประจำวันได้เร็ว</div>
+          <div class="compliance-grid single-column">
+            <div class="control-card">
+              <div class="summary-tiles">
+                <div id="dailySummaryTile" class="summary-tile"></div>
+                <div id="weeklySummaryTile" class="summary-tile"></div>
               </div>
+              <div class="section-head section-head-tight">
+                <div>
+                  <div class="control-title">Station status</div>
+                  <div class="control-note">daily = สเตชั่นหน้างาน • weekly = ห้องสต๊อก/พื้นที่เก็บของที่เช็กตามรอบ</div>
+                </div>
+              </div>
+              <div id="dailyDepartments" class="compliance-list"></div>
+              <div class="minor-gap"></div>
+              <div id="weeklyDepartments" class="compliance-list"></div>
             </div>
-            <div id="dailyDepartments" class="compliance-list"></div>
-            <div style="height:12px"></div>
-            <div id="weeklyDepartments" class="compliance-list"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2>Items Missing Today</h2>
+              <div class="section-note">รายการที่ policy บอกว่าต้องนับวันนี้ แต่ยังไม่มี count หรือยังไม่ครบตามรอบ</div>
+            </div>
+            <div class="section-tag">Follow-up</div>
           </div>
           <div class="control-card">
-            <div class="section-head" style="margin-bottom:10px">
+            <div class="split-equal missing-grid">
               <div>
-                <div class="control-title">รายการที่ยังไม่ได้นับ</div>
-                <div class="control-note">กดที่รายการเพื่อเปิด item audit trail ได้ทันที</div>
-              </div>
-            </div>
-            <div class="split-equal" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div>
-                <div class="section-tag" style="display:inline-flex;margin-bottom:10px">Daily missing</div>
+                <div class="section-tag tag-inline">Daily missing</div>
                 <div id="missingDailyItems" class="table-list"></div>
               </div>
               <div>
-                <div class="section-tag" style="display:inline-flex;margin-bottom:10px">Weekly missing</div>
+                <div class="section-tag tag-inline">Weekly missing</div>
                 <div id="missingWeeklyItems" class="table-list"></div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <div class="split">
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>แนวโน้ม 30 วัน</h2>
-              <div class="section-note">Count / Issue / Receive รายวัน</div>
-            </div>
-            <div class="section-tag">Trend</div>
-          </div>
-          <div class="chart-wrap">
-            <div id="trendChart"></div>
-            <div class="legend">
-              <span><i style="background:var(--count)"></i>Count</span>
-              <span><i style="background:var(--issue)"></i>Issue</span>
-              <span><i style="background:var(--receive)"></i>Receive</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>ภาพรวมตามโซน</h2>
-              <div class="section-note">จัดลำดับตามจำนวน LOW และ suggested order</div>
-            </div>
-            <div class="section-tag">Zone Health</div>
-          </div>
-          <div id="zoneSummary" class="zone-list"></div>
         </section>
       </div>
 
-      <div class="split-equal">
+      <div class="split-equal today-priority-grid">
         <section class="section">
           <div class="section-head">
             <div>
-              <h2>รายการที่ต้องจับตา</h2>
-              <div class="section-note">LOW / NO_COUNT_YET / ORDER / ZERO</div>
+              <h2>Low Stock / Watchlist</h2>
+              <div class="section-note">ใช้ดูของที่ต้องตามต่อทันที เช่น LOW, NO COUNT, ZERO หรือรายการที่เสี่ยง</div>
             </div>
             <div class="section-tag">Priority</div>
           </div>
@@ -137,45 +109,41 @@
         <section class="section">
           <div class="section-head">
             <div>
-              <h2>รายการที่ควรสั่งมากที่สุด</h2>
-              <div class="section-note">Top suggested order qty จาก Order_View</div>
+              <h2>Order Queue Today</h2>
+              <div class="section-note">รายการที่ควรสั่งมากที่สุดจาก order view เพื่อใช้ตัดสินใจก่อนจบรอบวัน</div>
             </div>
-            <div class="section-tag">Reorder Queue</div>
+            <div class="section-tag">Order</div>
           </div>
           <div id="topOrder" class="table-list"></div>
         </section>
       </div>
 
-      <div class="split-equal">
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>Top Issue 30 วัน</h2>
-              <div class="section-note">รายการที่ถูกเบิกมากสุด</div>
-            </div>
-            <div class="section-tag">Issue</div>
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>End of Day Checklist</h2>
+            <div class="section-note">เช็กลิสต์สำหรับผู้จัดการก่อนปิดร้าน ใช้ย้ำว่างานหลักของวันนี้เรียบร้อยแล้วหรือยัง</div>
           </div>
-          <div id="topIssue" class="table-list"></div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>Top Receive 30 วัน</h2>
-              <div class="section-note">รายการที่รับเข้ามากสุด</div>
-            </div>
-            <div class="section-tag">Receive</div>
-          </div>
-          <div id="topReceive" class="table-list"></div>
-        </section>
-      </div>
+          <div class="section-tag">Closing</div>
+        </div>
+        <div class="checklist-grid">
+          <label class="check-item"><input type="checkbox"> Daily items counted</label>
+          <label class="check-item"><input type="checkbox"> Weekly stock room checked (if due)</label>
+          <label class="check-item"><input type="checkbox"> Low stock reviewed</label>
+          <label class="check-item"><input type="checkbox"> Orders prepared</label>
+          <label class="check-item"><input type="checkbox"> Adjust reviewed</label>
+          <label class="check-item"><input type="checkbox"> Missing items followed up</label>
+          <label class="check-item"><input type="checkbox"> All departments checked</label>
+          <label class="check-item"><input type="checkbox"> Ready to close the day</label>
+        </div>
+      </section>
 
       <div class="adjust-grid">
         <section class="section">
           <div class="section-head">
             <div>
               <h2>Adjust Module v1.1</h2>
-              <div class="section-note">admin-only correction layer • reason/note rule เข้มขึ้น • เปิด audit trail จาก item ที่เลือกได้</div>
+              <div class="section-note">ใช้เฉพาะกรณีแก้ยอดอย่างมีเหตุผล ไม่ใช้แทน movement จริง กดเลือกสินค้าแล้วเปิด audit ได้ทันที</div>
             </div>
             <div class="section-tag">Adjust</div>
           </div>
@@ -238,9 +206,9 @@
           <div class="section-head">
             <div>
               <h2>Recent Adjusts</h2>
-              <div class="section-note">filter ได้ตามช่วงเวลา / เหตุผล / คำค้น และกดเพื่อเปิด audit trail</div>
+              <div class="section-note">ไว้ทบทวนสิ่งที่ถูกแก้วันนี้หรือช่วงหลัง ๆ เพื่อเช็กว่ามีอะไรผิดปกติหรือไม่</div>
             </div>
-            <div class="section-tag">Audit</div>
+            <div class="section-tag">Review</div>
           </div>
           <div class="control-card">
             <div class="filter-toolbar">
@@ -276,9 +244,9 @@
         <div class="section-head">
           <div>
             <h2>Item Detail Audit Trail</h2>
-            <div class="section-note">รวม Count / Issue / Receive / Adjust ของ item เดียว เพื่อไล่สาเหตุได้จากหน้าเดียว</div>
+            <div class="section-note">ใช้ไล่ประวัติ item เดียวจาก Count / Issue / Receive / Adjust เพื่อหาสาเหตุเมื่อ stock เพี้ยน</div>
           </div>
-          <div class="section-tag">Timeline</div>
+          <div class="section-tag">Audit</div>
         </div>
         <div class="audit-grid">
           <div class="control-card">
@@ -292,18 +260,76 @@
         </div>
       </section>
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <h2>Data Quality Summary</h2>
-            <div class="section-note">เช็ก readiness ของข้อมูลก่อนใช้ตัดสินใจ</div>
-          </div>
-          <div class="section-tag">Quality</div>
-        </div>
-        <div id="dataQuality" class="health-list"></div>
-      </section>
+      <details class="section collapse-shell">
+        <summary class="collapse-summary">Secondary insights / system detail</summary>
+        <div class="split">
+          <section class="section inner-section">
+            <div class="section-head">
+              <div>
+                <h2>แนวโน้ม 30 วัน</h2>
+                <div class="section-note">Count / Issue / Receive รายวัน</div>
+              </div>
+              <div class="section-tag">Trend</div>
+            </div>
+            <div class="chart-wrap">
+              <div id="trendChart"></div>
+              <div class="legend">
+                <span><i style="background:var(--count)"></i>Count</span>
+                <span><i style="background:var(--issue)"></i>Issue</span>
+                <span><i style="background:var(--receive)"></i>Receive</span>
+              </div>
+            </div>
+          </section>
 
-      <div class="footer">JRT Ops v4.2 Structured Lean Ops • adjust v1.1 + count compliance • modular frontend/backend build</div>
+          <section class="section inner-section">
+            <div class="section-head">
+              <div>
+                <h2>ภาพรวมตามโซน</h2>
+                <div class="section-note">จัดลำดับตามจำนวน LOW และ suggested order</div>
+              </div>
+              <div class="section-tag">Zone Health</div>
+            </div>
+            <div id="zoneSummary" class="zone-list"></div>
+          </section>
+        </div>
+
+        <div class="split-equal">
+          <section class="section inner-section">
+            <div class="section-head">
+              <div>
+                <h2>Top Issue 30 วัน</h2>
+                <div class="section-note">รายการที่ถูกเบิกมากสุด</div>
+              </div>
+              <div class="section-tag">Issue</div>
+            </div>
+            <div id="topIssue" class="table-list"></div>
+          </section>
+
+          <section class="section inner-section">
+            <div class="section-head">
+              <div>
+                <h2>Top Receive 30 วัน</h2>
+                <div class="section-note">รายการที่รับเข้ามากสุด</div>
+              </div>
+              <div class="section-tag">Receive</div>
+            </div>
+            <div id="topReceive" class="table-list"></div>
+          </section>
+        </div>
+
+        <section class="section inner-section">
+          <div class="section-head">
+            <div>
+              <h2>Data Quality Summary</h2>
+              <div class="section-note">เช็ก readiness ของข้อมูลก่อนใช้ตัดสินใจ</div>
+            </div>
+            <div class="section-tag">Quality</div>
+          </div>
+          <div id="dataQuality" class="health-list"></div>
+        </section>
+      </details>
+
+      <div class="footer">JRT Ops v4.4 Policy-Driven Today • manager-first layout • daily control + weekly stock room checks • adjust + audit</div>
     </main>
   </div>
 
