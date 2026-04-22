@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
   api: {
-    baseUrl: "https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec",
+    baseUrl: "https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec",
     timeoutMs: 12000
   },
   cacheKey: 'jrt_ops_dashboard_v3_cache',
@@ -10,7 +10,7 @@ export const APP_CONFIG = {
 
 export const EMPTY_PAYLOAD = {
   ok: true,
-  appVersion: '4.2.0-structured-lean-ops',
+  appVersion: '4.4.0-policy-driven-today',
   generatedAt: new Date().toISOString(),
   dataAsOf: '',
   meta: {
@@ -21,6 +21,7 @@ export const EMPTY_PAYLOAD = {
   },
   actionBoard: [],
   kpis: [],
+  todayPolicy: { applied: false, weekday: '', ownerNames: [], stationsDue: 0, roomsDue: 0 },
   dailyTrends: [],
   zoneSummary: [],
   topOrder: [],
