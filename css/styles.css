@@ -192,3 +192,24 @@
 @media (max-width:480px){
   .summary-tiles,.audit-summary{grid-template-columns:1fr}
 }
+
+/* v4.3 Today Ops additions */
+.today-hero{border:1px solid #dbe6f3;background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%)}
+.compact-kpis{margin-top:14px}
+.today-priority-grid{align-items:start}
+.single-column{grid-template-columns:1fr!important}
+.section-head-tight{margin:12px 0 10px}
+.minor-gap{height:12px}
+.tag-inline{display:inline-flex;margin-bottom:10px}
+.checklist-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.check-item{display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid #e1e8f1;border-radius:14px;background:#fff;font-weight:600;color:#1d2b3a}
+.check-item input{width:18px;height:18px}
+.collapse-shell{padding:0;border:1px solid #e1e8f1;border-radius:18px;overflow:hidden;background:#fff}
+.collapse-summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:800;color:#17324b;background:#f7faff}
+.collapse-summary::-webkit-details-marker{display:none}
+.collapse-shell[open] .collapse-summary{border-bottom:1px solid #e6edf5}
+.inner-section{border:none;box-shadow:none;padding:18px}
+.missing-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width: 860px){
+  .checklist-grid,.missing-grid{grid-template-columns:1fr}
+}
