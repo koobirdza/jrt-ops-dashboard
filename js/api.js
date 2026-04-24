@@ -37,6 +37,7 @@ export const fetchDashboardCompliance = () => jsonp('dashboardCompliance');
 export const fetchHealth = () => jsonp('health');
 
 export const adminRefreshDashboard = (token) => jsonp('adminRefreshDashboard', { token }, 25000);
+export const adminManualRebuild = (token, forceFull = '') => jsonp('adminManualRebuild', { token, forceFull }, 45000);
 export const createAdjust = (params) => jsonp('createAdjust', params, 25000);
 export const listRecentAdjusts = (params) => jsonp('listRecentAdjusts', params, 25000);
 export const fetchItemAudit = (params) => jsonp('itemAuditTrail', params, 25000);

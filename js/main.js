@@ -9,6 +9,7 @@ import {
   fetchDashboardCompliance,
   fetchHealth,
   adminRefreshDashboard,
+  adminManualRebuild,
   createAdjust,
   listRecentAdjusts,
   fetchItemAudit
@@ -39,7 +40,7 @@ import { renderAuditPanel } from './render-audit.js';
 
 const els = {};
 const ids = [
-  'refreshBtn','reloadBtn','statusPill','sourcePill','snapshotPill','activityPill','warningBanner',
+  'manualRebuildBtn','refreshBtn','reloadBtn','statusPill','sourcePill','snapshotPill','activityPill','warningBanner',
   'actionBoard','kpiGrid','trendChart','zoneSummary','watchlist','topOrder','topIssue','topReceive','dataQuality',
   'adjustModeBadge','adjustFilter','adjustPicker','adjustSelected','adjustEmployee','adjustMode','adjustQty','adjustReason','adjustNote','adjustPreview','adjustSubmitBtn','adjustInlineStatus','adjustQtyLabel',
   'adjustRangeFilter','adjustReasonFilter','adjustSearchFilter','adjustFilterBtn','recentAdjusts',
@@ -225,6 +226,27 @@ async function adminRefresh() {
   }
 }
 
+async function manualRebuildLatestStock() {
+  const token = getAdminTokenForWrite();
+  if (!token) return;
+  const btn = els.manualRebuildBtn;
+  setStatus(els, 'กำลังคำนวณสต๊อกล่าสุด...', 'info');
+  if (btn) btn.disabled = true;
+  if (els.refreshBtn) els.refreshBtn.disabled = true;
+  try {
+    const result = await adminManualRebuild(token);
+    if (!result || result.ok === false) throw new Error(result?.error || 'manual rebuild failed');
+    window.alert(`${result.popupTitle || 'คำนวณสต๊อกล่าสุดเรียบร้อยแล้ว'}\n${result.popupMessage || ''}`);
+    await loadDashboard({ forceLive: true });
+    setStatus(els, `คำนวณสต๊อกล่าสุดสำเร็จ • ${result.mode || 'manual'} • events ${result.appliedEvents ?? 0}`, 'ok');
+  } catch (error) {
+    setStatus(els, `คำนวณสต๊อกล่าสุดไม่สำเร็จ: ${error.message}`, 'danger');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (els.refreshBtn) els.refreshBtn.disabled = false;
+  }
+}
+
 function selectAdjustItem(itemKey) {
   state.selectedAdjustItemKey = itemKey;
   renderAdjustPicker(state, els);
@@ -320,6 +342,7 @@ function handleAuditSelection(itemKey) {
 function bindEvents() {
   els.reloadBtn.addEventListener('click', () => loadDashboard({ forceLive: true }));
   els.refreshBtn.addEventListener('click', adminRefresh);
+  els.manualRebuildBtn?.addEventListener('click', manualRebuildLatestStock);
   els.adjustSubmitBtn.addEventListener('click', submitAdjust);
 
   els.adjustFilter.addEventListener('input', debounce((event) => {

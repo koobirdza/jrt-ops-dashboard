@@ -3,14 +3,14 @@ export const APP_CONFIG = {
     baseUrl: "https://script.google.com/macros/s/AKfycbwSOEIId8C7BVTxCYwiJoSG7N7k4OSy1TfZXJyDHSD2AWSJ7NWGboHYIqMtqbqP2ISn4Q/exec",
     timeoutMs: 12000
   },
-  cacheKey: 'jrt_ops_dashboard_v3_cache',
+  cacheKey: 'jrt_ops_dashboard_v452_cache',
   cacheAgeMs: 15 * 60 * 1000,
   auditLimit: 50
 };
 
 export const EMPTY_PAYLOAD = {
   ok: true,
-  appVersion: '4.4.0-policy-driven-today',
+  appVersion: '4.5.2-manual-incremental-rebuild',
   generatedAt: new Date().toISOString(),
   dataAsOf: '',
   meta: {
