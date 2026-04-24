@@ -3,14 +3,14 @@ export const APP_CONFIG = {
     baseUrl: "https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec",
     timeoutMs: 20000
   },
-  cacheKey: 'jrt_ops_dashboard_v453_cache',
+  cacheKey: 'jrt_ops_dashboard_v455_cache',
   cacheAgeMs: 15 * 60 * 1000,
   auditLimit: 50
 };
 
 export const EMPTY_PAYLOAD = {
   ok: true,
-  appVersion: '4.5.3-backend-clean',
+  appVersion: '4.5.5-premium-layout',
   generatedAt: new Date().toISOString(),
   dataAsOf: '',
   meta: {
