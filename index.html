@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#12304a" />
-  <title>JRT Ops v4.5.2 Manual Rebuild</title>
+  <title>JRT Ops v4.5.5 Premium Layout</title>
   <link rel="stylesheet" href="./css/styles.css" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2312304a'/%3E%3Cpath fill='white' d='M14 38h18l4-10h14l-4 12c-.7 2.1-2.7 3.5-4.9 3.5H20.5c-2.3 0-4.4-1.5-5.1-3.7L10 20h6l2.3 8H34l2-6h6l-2 6h10v4H36l-2 6H18.1z'/%3E%3C/svg%3E" />
 </head>
@@ -13,7 +13,7 @@
     <header class="header">
       <div class="header-top">
         <div class="brand">
-          <h1>JRT Ops v4.5.2 Manual Rebuild</h1>
+          <h1>JRT Ops v4.5.5 Premium Layout</h1>
           <p>operations control panel สำหรับผู้จัดการร้าน • policy-driven today logic • daily station + weekly stock room checks</p>
         </div>
         <div class="header-actions">
@@ -44,9 +44,9 @@
         <div id="kpiGrid" class="kpi-grid compact-kpis"></div>
       </section>
 
-      <div class="split-equal today-priority-grid">
-        <section class="section">
-          <div class="section-head">
+      <div class="dashboard-stack compliance-missing-stack">
+        <section class="section section-wide premium-compliance-section">
+          <div class="section-head premium-section-head">
             <div>
               <h2>Count Compliance Today</h2>
               <div class="section-note">ดูทันทีว่าวันนี้ policy บอกให้สเตชั่นไหนและห้องสต๊อกไหนต้องนับ และทำครบหรือยัง</div>
@@ -72,8 +72,8 @@
           </div>
         </section>
 
-        <section class="section">
-          <div class="section-head">
+        <section class="section section-wide premium-missing-section">
+          <div class="section-head premium-section-head">
             <div>
               <h2>Items Missing Today</h2>
               <div class="section-note">รายการที่ policy บอกว่าต้องนับวันนี้ แต่ยังไม่มี count หรือยังไม่ครบตามรอบ</div>
@@ -81,7 +81,7 @@
             <div class="section-tag">Follow-up</div>
           </div>
           <div class="control-card">
-            <div class="split-equal missing-grid">
+            <div class="missing-grid missing-grid-wide">
               <div>
                 <div class="section-tag tag-inline">Daily missing</div>
                 <div id="missingDailyItems" class="table-list"></div>
