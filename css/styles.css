@@ -213,3 +213,174 @@
 @media (max-width: 860px){
   .checklist-grid,.missing-grid{grid-template-columns:1fr}
 }
+
+
+/* v4.5.5 Premium Dashboard Layout
+   Purpose: turn Count Compliance + Items Missing from cramped 2-column layout
+   into full-width horizontal SaaS-style sections. Frontend-only; no backend/workbook impact. */
+.dashboard-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  width: 100%;
+}
+
+.section-wide {
+  width: 100%;
+}
+
+.premium-compliance-section,
+.premium-missing-section {
+  border: 1px solid #dfe8f2;
+  background:
+    radial-gradient(circle at top right, rgba(37,99,235,.045), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.premium-section-head {
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.premium-compliance-section .control-card,
+.premium-missing-section .control-card {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.premium-compliance-section .compliance-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 16px;
+}
+
+.premium-compliance-section .summary-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.premium-compliance-section .summary-tile {
+  min-height: 116px;
+  border-radius: 22px;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .045);
+}
+
+.premium-compliance-section .section-head-tight {
+  margin: 10px 0 12px;
+}
+
+.premium-compliance-section .compliance-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.premium-compliance-section .compliance-row {
+  min-height: 86px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #ffffff, #fbfdff);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .035);
+}
+
+.premium-missing-section .missing-grid-wide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.premium-missing-section .missing-grid-wide > div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #edf2f7;
+  border-radius: 22px;
+  background: #fbfdff;
+}
+
+.premium-missing-section .tag-inline {
+  display: inline-flex;
+  margin-bottom: 12px;
+  background: #eef5ff;
+  color: #1d4ed8;
+}
+
+.premium-missing-section .table-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.premium-missing-section .row-card {
+  min-height: 150px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #ffffff, #fbfdff);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .035);
+}
+
+.premium-missing-section .row-title {
+  font-size: 17px;
+}
+
+.premium-missing-section .row-sub {
+  line-height: 1.55;
+}
+
+.premium-missing-section .empty-state {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 18px;
+}
+
+@media (max-width: 1180px) {
+  .premium-compliance-section .compliance-list {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+  }
+
+  .premium-missing-section .table-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .premium-compliance-section .summary-tiles,
+  .premium-compliance-section .compliance-list,
+  .premium-missing-section .missing-grid-wide {
+    grid-template-columns: 1fr;
+  }
+
+  .premium-missing-section .missing-grid-wide > div {
+    padding: 12px;
+  }
+
+  .premium-compliance-section .summary-tile {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .premium-compliance-section,
+  .premium-missing-section {
+    padding: 14px;
+  }
+
+  .premium-section-head {
+    align-items: flex-start;
+  }
+
+  .premium-missing-section .row-card,
+  .premium-compliance-section .compliance-row {
+    min-height: auto;
+  }
+}
