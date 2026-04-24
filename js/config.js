@@ -1,16 +1,16 @@
 export const APP_CONFIG = {
   api: {
     baseUrl: "https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec",
-    timeoutMs: 12000
+    timeoutMs: 20000
   },
-  cacheKey: 'jrt_ops_dashboard_v452_cache',
+  cacheKey: 'jrt_ops_dashboard_v453_cache',
   cacheAgeMs: 15 * 60 * 1000,
   auditLimit: 50
 };
 
 export const EMPTY_PAYLOAD = {
   ok: true,
-  appVersion: '4.5.2-manual-incremental-rebuild',
+  appVersion: '4.5.3-backend-clean',
   generatedAt: new Date().toISOString(),
   dataAsOf: '',
   meta: {
