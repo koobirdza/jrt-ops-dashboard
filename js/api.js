@@ -34,6 +34,7 @@ export const fetchDashboardInventory = () => jsonp('dashboardInventory');
 export const fetchDashboardActivity = () => jsonp('dashboardActivity');
 export const fetchDashboardAdjustData = () => jsonp('dashboardAdjustData');
 export const fetchDashboardCompliance = () => jsonp('dashboardCompliance');
+export const fetchDashboardReconciliation = () => jsonp('dashboardReconciliation');
 export const fetchHealth = () => jsonp('health');
 
 export const adminRefreshDashboard = (token) => jsonp('adminRefreshDashboard', { token }, 25000);

@@ -7,6 +7,7 @@ import {
   fetchDashboardActivity,
   fetchDashboardAdjustData,
   fetchDashboardCompliance,
+  fetchDashboardReconciliation,
   fetchHealth,
   adminRefreshDashboard,
   adminManualRebuild,
@@ -37,6 +38,7 @@ import {
 } from './render-adjust.js';
 import { renderCountCompliance } from './render-compliance.js';
 import { renderAuditPanel } from './render-audit.js';
+import { renderReconciliation } from './render-reconciliation.js';
 
 const els = {};
 const ids = [
@@ -44,6 +46,7 @@ const ids = [
   'actionBoard','kpiGrid','trendChart','zoneSummary','watchlist','topOrder','topIssue','topReceive','dataQuality',
   'adjustModeBadge','adjustFilter','adjustPicker','adjustSelected','adjustEmployee','adjustMode','adjustQty','adjustReason','adjustNote','adjustPreview','adjustSubmitBtn','adjustInlineStatus','adjustQtyLabel',
   'adjustRangeFilter','adjustReasonFilter','adjustSearchFilter','adjustFilterBtn','recentAdjusts',
+  'reconciliationSummary','reconciliationList',
   'dailySummaryTile','weeklySummaryTile','dailyDepartments','weeklyDepartments','missingDailyItems','missingWeeklyItems',
   'auditSelected','auditSummary','auditEvents'
 ];
@@ -82,6 +85,7 @@ function renderAll(source = state.source || 'pending') {
   renderAdjustModule(state, els, payload);
   bindAdjustPicker(state, els, selectAdjustItem);
   renderRecentAdjusts(els, state.recentAdjusts, handleAuditSelection);
+  renderReconciliation(els, payload.reconciliation || {});
   renderCountCompliance(els, payload.countCompliance || {}, handleAuditSelection);
   renderAuditPanel(els, state.auditPayload);
 
@@ -128,6 +132,12 @@ function applyAdjustPayload(payload) {
     recentAdjusts: payload.recentAdjusts || []
   });
   state.recentAdjusts = Array.isArray(payload.recentAdjusts) ? payload.recentAdjusts : [];
+  renderAll(state.source || 'live');
+  saveSnapshot();
+}
+
+function applyReconciliationPayload(payload) {
+  mergePayload({ reconciliation: payload.reconciliation || EMPTY_PAYLOAD.reconciliation });
   renderAll(state.source || 'live');
   saveSnapshot();
 }
@@ -196,7 +206,8 @@ async function loadDashboard(options = {}) {
     loadModule('inventory', fetchDashboardInventory, applyInventoryPayload, { silent: true }),
     loadModule('activity', fetchDashboardActivity, applyActivityPayload, { silent: true }),
     loadModule('adjust', fetchDashboardAdjustData, applyAdjustPayload, { silent: true }),
-    loadModule('compliance', fetchDashboardCompliance, applyCompliancePayload, { silent: true })
+    loadModule('compliance', fetchDashboardCompliance, applyCompliancePayload, { silent: true }),
+    loadModule('reconciliation', fetchDashboardReconciliation, applyReconciliationPayload, { silent: true })
   ]);
 
   const failed = results.filter((row) => !row.ok).length;
