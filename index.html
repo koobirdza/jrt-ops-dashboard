@@ -2,353 +2,102 @@
 <html lang="th">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#12304a" />
-  <title>JRT Ops v4.5.7 Reconciliation View</title>
-  <link rel="stylesheet" href="./css/styles.css" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2312304a'/%3E%3Cpath fill='white' d='M14 38h18l4-10h14l-4 12c-.7 2.1-2.7 3.5-4.9 3.5H20.5c-2.3 0-4.4-1.5-5.1-3.7L10 20h6l2.3 8H34l2-6h6l-2 6h10v4H36l-2 6H18.1z'/%3E%3C/svg%3E" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JRT Ops Daily Control</title>
+  <style>
+    :root{--bg:#f6f1ea;--card:#fffaf4;--ink:#241713;--muted:#7a6259;--line:#e6d8ca;--brand:#7f1d1d;--ok:#167047;--warn:#a15c00;--danger:#a11b1b;--soft:#fff3e6;--shadow:0 18px 55px rgba(70,35,20,.09)}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#fbf7f1,#f3e7db);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+    .wrap{max-width:1280px;margin:0 auto;padding:24px}.top{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}.brand h1{margin:0;font-size:28px;letter-spacing:-.02em}.brand p{margin:6px 0 0;color:var(--muted)}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.input{min-width:280px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:var(--ink)}.btn{border:0;border-radius:14px;background:var(--brand);color:#fff;padding:12px 16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}.btn.secondary{background:#fff;color:var(--brand);border:1px solid var(--line)}
+    .status{font-size:13px;color:var(--muted);margin-top:8px}.grid{display:grid;gap:14px}.cards{grid-template-columns:repeat(7,minmax(120px,1fr));margin:18px 0}.card{background:rgba(255,250,244,.92);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.metric .label{color:var(--muted);font-size:13px}.metric .value{font-size:30px;font-weight:850;margin-top:4px}.metric.warn .value{color:var(--warn)}.metric.danger .value{color:var(--danger)}.metric.ok .value{color:var(--ok)}
+    .main{grid-template-columns:1.05fr .95fr}.section h2{margin:0 0 12px;font-size:18px}.section .sub{color:var(--muted);font-size:13px;margin:-6px 0 12px}.list{display:grid;gap:10px}.task{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px}.pill{font-size:11px;font-weight:800;border-radius:999px;padding:5px 8px;background:#eee;color:#444;white-space:nowrap}.pill.warn{background:#fff3d6;color:#8a4d00}.pill.danger{background:#ffe0df;color:#9b1919}.pill.ok{background:#dff5ea;color:#146b43}.task h3{margin:0;font-size:15px}.task p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:13px}th{text-align:left;color:var(--muted);font-size:12px;font-weight:700;padding:0 10px}td{background:#fff;padding:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}.num{text-align:right;font-variant-numeric:tabular-nums}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;color:var(--muted)}.tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}.panel{display:none}.panel.active{display:block}.empty{padding:20px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:#fff}.footer{margin-top:22px;color:var(--muted);font-size:12px;text-align:center}
+    @media(max-width:1050px){.cards{grid-template-columns:repeat(3,1fr)}.main{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.input{width:100%;min-width:0}}@media(max-width:640px){.cards{grid-template-columns:repeat(2,1fr)}.wrap{padding:14px}.card{padding:14px}.metric .value{font-size:24px}table{font-size:12px}}
+  </style>
 </head>
 <body>
-  <div class="app today-app">
-    <header class="header">
-      <div class="header-top">
-        <div class="brand">
-          <h1>JRT Ops v4.5.7 Reconciliation View</h1>
-          <p>operations control panel สำหรับผู้จัดการร้าน • policy-driven today logic • daily station + weekly stock room checks</p>
-        </div>
-        <div class="header-actions">
-          <button id="manualRebuildBtn" class="btn btn-primary" type="button">คำนวณสต๊อกล่าสุด</button>
-          <button id="refreshBtn" class="btn btn-secondary" type="button">Admin Refresh</button>
-          <button id="reloadBtn" class="btn btn-secondary" type="button">Reload Live</button>
-        </div>
-      </div>
-      <div class="pill-row">
-        <div id="statusPill" class="pill info">กำลังโหลด...</div>
-        <div id="sourcePill" class="pill ok">source: pending</div>
-        <div id="snapshotPill" class="pill info">snapshot: -</div>
-        <div id="activityPill" class="pill info">activity: -</div>
-      </div>
-      <div id="warningBanner" class="warning-banner"></div>
-    </header>
-
-    <main class="main">
-      <section class="section today-hero">
-        <div class="section-head">
-          <div>
-            <h2>Today</h2>
-            <div class="section-note">หน้าหลักสำหรับเช็กความเรียบร้อยของร้านในแต่ละวัน ว่าวันนี้อะไรเสร็จแล้ว อะไรยังค้าง และอะไรต้องรีบจัดการ</div>
-          </div>
-          <div class="section-tag">Manager View</div>
-        </div>
-        <section id="actionBoard" class="action-grid"></section>
-        <div id="kpiGrid" class="kpi-grid compact-kpis"></div>
-      </section>
-
-
-      <section class="section section-wide premium-reconciliation-section">
-        <div class="section-head premium-section-head">
-          <div>
-            <h2>Stock Reconciliation</h2>
-            <div class="section-note">เทียบ System Stock กับ Count Stock ก่อน count ใหม่กลายเป็น baseline เพื่อจับ diff / FLAG / CRITICAL</div>
-          </div>
-          <div class="section-tag">Control Layer</div>
-        </div>
-        <div class="control-card">
-          <div id="reconciliationSummary" class="summary-tiles reconciliation-summary"></div>
-          <div id="reconciliationList" class="table-list reconciliation-list"></div>
-        </div>
-      </section>
-
-      <div class="dashboard-stack compliance-missing-stack">
-        <section class="section section-wide premium-compliance-section">
-          <div class="section-head premium-section-head">
-            <div>
-              <h2>Count Compliance Today</h2>
-              <div class="section-note">ดูทันทีว่าวันนี้ policy บอกให้สเตชั่นไหนและห้องสต๊อกไหนต้องนับ และทำครบหรือยัง</div>
-            </div>
-            <div class="section-tag">Check</div>
-          </div>
-          <div class="compliance-grid single-column">
-            <div class="control-card">
-              <div class="summary-tiles">
-                <div id="dailySummaryTile" class="summary-tile"></div>
-                <div id="weeklySummaryTile" class="summary-tile"></div>
-              </div>
-              <div class="section-head section-head-tight">
-                <div>
-                  <div class="control-title">Station status</div>
-                  <div class="control-note">daily = สเตชั่นหน้างาน • weekly = ห้องสต๊อก/พื้นที่เก็บของที่เช็กตามรอบ</div>
-                </div>
-              </div>
-              <div id="dailyDepartments" class="compliance-list"></div>
-              <div class="minor-gap"></div>
-              <div id="weeklyDepartments" class="compliance-list"></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section section-wide premium-missing-section">
-          <div class="section-head premium-section-head">
-            <div>
-              <h2>Items Missing Today</h2>
-              <div class="section-note">รายการที่ policy บอกว่าต้องนับวันนี้ แต่ยังไม่มี count หรือยังไม่ครบตามรอบ</div>
-            </div>
-            <div class="section-tag">Follow-up</div>
-          </div>
-          <div class="control-card">
-            <div class="missing-grid missing-grid-wide">
-              <div>
-                <div class="section-tag tag-inline">Daily missing</div>
-                <div id="missingDailyItems" class="table-list"></div>
-              </div>
-              <div>
-                <div class="section-tag tag-inline">Weekly missing</div>
-                <div id="missingWeeklyItems" class="table-list"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="split-equal today-priority-grid">
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>Low Stock / Watchlist</h2>
-              <div class="section-note">ใช้ดูของที่ต้องตามต่อทันที เช่น LOW, NO COUNT, ZERO หรือรายการที่เสี่ยง</div>
-            </div>
-            <div class="section-tag">Priority</div>
-          </div>
-          <div id="watchlist" class="table-list"></div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>Order Queue Today</h2>
-              <div class="section-note">รายการที่ควรสั่งมากที่สุดจาก order view เพื่อใช้ตัดสินใจก่อนจบรอบวัน</div>
-            </div>
-            <div class="section-tag">Order</div>
-          </div>
-          <div id="topOrder" class="table-list"></div>
-        </section>
-      </div>
-
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <h2>End of Day Checklist</h2>
-            <div class="section-note">เช็กลิสต์สำหรับผู้จัดการก่อนปิดร้าน ใช้ย้ำว่างานหลักของวันนี้เรียบร้อยแล้วหรือยัง</div>
-          </div>
-          <div class="section-tag">Closing</div>
-        </div>
-        <div class="checklist-grid">
-          <label class="check-item"><input type="checkbox"> Daily items counted</label>
-          <label class="check-item"><input type="checkbox"> Weekly stock room checked (if due)</label>
-          <label class="check-item"><input type="checkbox"> Low stock reviewed</label>
-          <label class="check-item"><input type="checkbox"> Orders prepared</label>
-          <label class="check-item"><input type="checkbox"> Adjust reviewed</label>
-          <label class="check-item"><input type="checkbox"> Missing items followed up</label>
-          <label class="check-item"><input type="checkbox"> All departments checked</label>
-          <label class="check-item"><input type="checkbox"> Ready to close the day</label>
-        </div>
-      </section>
-
-      <div class="adjust-grid">
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>Adjust Module v1.1</h2>
-              <div class="section-note">ใช้เฉพาะกรณีแก้ยอดอย่างมีเหตุผล ไม่ใช้แทน movement จริง กดเลือกสินค้าแล้วเปิด audit ได้ทันที</div>
-            </div>
-            <div class="section-tag">Adjust</div>
-          </div>
-
-          <div class="control-card">
-            <div class="control-head">
-              <div>
-                <div class="control-title">เลือกสินค้าและปรับยอด</div>
-                <div class="control-note">delta = เพิ่ม/ลดจากยอดปัจจุบัน • absolute = ตั้งยอดใหม่</div>
-              </div>
-              <div id="adjustModeBadge" class="pill info">admin only</div>
-            </div>
-
-            <div class="picker-shell">
-              <div class="field full">
-                <label for="adjustFilter">ค้นหาสินค้า</label>
-                <input id="adjustFilter" class="input" type="search" placeholder="พิมพ์ชื่อสินค้า / แบรนด์ / item key / โซน">
-              </div>
-              <div id="adjustPicker" class="picker-list"></div>
-            </div>
-
-            <div id="adjustSelected" class="selected-card" style="margin-top:12px"></div>
-
-            <div class="form-grid" style="margin-top:12px">
-              <div class="field">
-                <label for="adjustEmployee">ผู้ทำรายการ</label>
-                <input id="adjustEmployee" class="input" type="text" placeholder="เช่น Manager A">
-              </div>
-              <div class="field">
-                <label for="adjustMode">โหมด</label>
-                <select id="adjustMode" class="select">
-                  <option value="delta">Delta adjust (+/-)</option>
-                  <option value="absolute">Absolute adjust (set stock)</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="adjustQty" id="adjustQtyLabel">จำนวนปรับ (+/-)</label>
-                <input id="adjustQty" class="input" type="number" step="1" inputmode="decimal" placeholder="เช่น -2 หรือ 5">
-              </div>
-              <div class="field">
-                <label for="adjustReason">เหตุผล</label>
-                <select id="adjustReason" class="select"></select>
-              </div>
-              <div class="field full">
-                <label for="adjustNote">หมายเหตุ</label>
-                <textarea id="adjustNote" class="textarea" placeholder="บาง reason ต้องใส่ note อย่างน้อย 5 ตัวอักษร"></textarea>
-              </div>
-            </div>
-
-            <div id="adjustPreview" class="preview-box" style="margin-top:12px"></div>
-
-            <div class="adjust-actions">
-              <button id="adjustSubmitBtn" class="btn btn-primary" type="button">บันทึก Adjust</button>
-              <div id="adjustInlineStatus" class="mini-status">ยังไม่ได้เลือกสินค้า</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2>Recent Adjusts</h2>
-              <div class="section-note">ไว้ทบทวนสิ่งที่ถูกแก้วันนี้หรือช่วงหลัง ๆ เพื่อเช็กว่ามีอะไรผิดปกติหรือไม่</div>
-            </div>
-            <div class="section-tag">Review</div>
-          </div>
-          <div class="control-card">
-            <div class="filter-toolbar">
-              <div class="field">
-                <label for="adjustRangeFilter">ช่วงเวลา</label>
-                <select id="adjustRangeFilter" class="select">
-                  <option value="today">Today</option>
-                  <option value="7d">Last 7 days</option>
-                  <option value="30d" selected>Last 30 days</option>
-                  <option value="90d">Last 90 days</option>
-                  <option value="all">All</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="adjustReasonFilter">เหตุผล</label>
-                <select id="adjustReasonFilter" class="select"></select>
-              </div>
-              <div class="field full-span">
-                <label for="adjustSearchFilter">ค้นหา</label>
-                <input id="adjustSearchFilter" class="input" type="search" placeholder="ค้นหา item / actor / note">
-              </div>
-              <div class="field">
-                <label>&nbsp;</label>
-                <button id="adjustFilterBtn" class="btn btn-secondary" type="button">Apply</button>
-              </div>
-            </div>
-            <div id="recentAdjusts" class="table-list"></div>
-          </div>
-        </section>
-      </div>
-
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <h2>Item Detail Audit Trail</h2>
-            <div class="section-note">ใช้ไล่ประวัติ item เดียวจาก Count / Issue / Receive / Adjust เพื่อหาสาเหตุเมื่อ stock เพี้ยน</div>
-          </div>
-          <div class="section-tag">Audit</div>
-        </div>
-        <div class="audit-grid">
-          <div class="control-card">
-            <div id="auditSelected" class="selected-card"></div>
-            <div style="height:12px"></div>
-            <div id="auditSummary" class="audit-summary"></div>
-          </div>
-          <div class="control-card">
-            <div id="auditEvents" class="audit-list"></div>
-          </div>
-        </div>
-      </section>
-
-      <details class="section collapse-shell">
-        <summary class="collapse-summary">Secondary insights / system detail</summary>
-        <div class="split">
-          <section class="section inner-section">
-            <div class="section-head">
-              <div>
-                <h2>แนวโน้ม 30 วัน</h2>
-                <div class="section-note">Count / Issue / Receive รายวัน</div>
-              </div>
-              <div class="section-tag">Trend</div>
-            </div>
-            <div class="chart-wrap">
-              <div id="trendChart"></div>
-              <div class="legend">
-                <span><i style="background:var(--count)"></i>Count</span>
-                <span><i style="background:var(--issue)"></i>Issue</span>
-                <span><i style="background:var(--receive)"></i>Receive</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="section inner-section">
-            <div class="section-head">
-              <div>
-                <h2>ภาพรวมตามโซน</h2>
-                <div class="section-note">จัดลำดับตามจำนวน LOW และ suggested order</div>
-              </div>
-              <div class="section-tag">Zone Health</div>
-            </div>
-            <div id="zoneSummary" class="zone-list"></div>
-          </section>
-        </div>
-
-        <div class="split-equal">
-          <section class="section inner-section">
-            <div class="section-head">
-              <div>
-                <h2>Top Issue 30 วัน</h2>
-                <div class="section-note">รายการที่ถูกเบิกมากสุด</div>
-              </div>
-              <div class="section-tag">Issue</div>
-            </div>
-            <div id="topIssue" class="table-list"></div>
-          </section>
-
-          <section class="section inner-section">
-            <div class="section-head">
-              <div>
-                <h2>Top Receive 30 วัน</h2>
-                <div class="section-note">รายการที่รับเข้ามากสุด</div>
-              </div>
-              <div class="section-tag">Receive</div>
-            </div>
-            <div id="topReceive" class="table-list"></div>
-          </section>
-        </div>
-
-        <section class="section inner-section">
-          <div class="section-head">
-            <div>
-              <h2>Data Quality Summary</h2>
-              <div class="section-note">เช็ก readiness ของข้อมูลก่อนใช้ตัดสินใจ</div>
-            </div>
-            <div class="section-tag">Quality</div>
-          </div>
-          <div id="dataQuality" class="health-list"></div>
-        </section>
-      </details>
-
-      <div class="footer">JRT Ops v4.4 Policy-Driven Today • manager-first layout • daily control + weekly stock room checks • adjust + audit</div>
-    </main>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <h1>JRT Ops Daily Control</h1>
+      <p>หน้าเดียวสำหรับ manager: นับสต๊อก / reorder / reconciliation / data health</p>
+      <div id="meta" class="status">ยังไม่ได้โหลดข้อมูล</div>
+    </div>
+    <div class="controls">
+      <input id="apiUrl" class="input" placeholder="Apps Script Web App URL" />
+      <button class="btn" id="saveBtn">Save URL</button>
+      <button class="btn secondary" id="refreshBtn">Refresh</button>
+    </div>
   </div>
 
-  <script type="module" src="./js/main.js"></script>
+  <div id="summary" class="grid cards"></div>
+
+  <div class="grid main">
+    <section class="card section">
+      <h2>Today Checklist</h2>
+      <p class="sub">สิ่งที่ควรจัดการวันนี้ เรียงจาก count → reconciliation → order → data issue</p>
+      <div id="checklist" class="list"></div>
+    </section>
+    <section class="card section">
+      <h2>Zone Compliance</h2>
+      <p class="sub">เช็กตาม Policy_Zone + Item_Location_Map</p>
+      <div id="zones"></div>
+    </section>
+  </div>
+
+  <div class="card section" style="margin-top:14px">
+    <div class="tabs">
+      <button class="tab active" data-tab="reorder">Reorder</button>
+      <button class="tab" data-tab="recon">Reconciliation</button>
+      <button class="tab" data-tab="location">Stock by Location</button>
+      <button class="tab" data-tab="quality">Data Quality</button>
+    </div>
+    <div id="tab-reorder" class="panel active"></div>
+    <div id="tab-recon" class="panel"></div>
+    <div id="tab-location" class="panel"></div>
+    <div id="tab-quality" class="panel"></div>
+  </div>
+
+  <div class="footer">JRT Ops v4.6.0 • no external notification • dashboard-first workflow</div>
+</div>
+<script>
+const $ = (id)=>document.getElementById(id);
+const state = { data:null };
+const labels = {
+  zones_due:'Zones due', zones_missing:'Missing zones', reconciliation_pending:'Pending review', reconciliation_flagged:'Flagged diff', need_order_items:'Need order', critical_order_items:'A items', data_issues:'Data issues'
+};
+function esc(v){return String(v??'').replace(/[&<>"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]))}
+function apiBase(){return localStorage.getItem('JRT_OPS_API_URL') || ''}
+function setMeta(text){$('meta').textContent=text}
+async function load(refresh=false){
+  const base = apiBase();
+  if(!base){setMeta('ใส่ Apps Script Web App URL ก่อน'); return}
+  $('apiUrl').value = base;
+  setMeta('กำลังโหลดข้อมูล...');
+  try{
+    const url = base + (base.includes('?')?'&':'?') + 'action=dailyDashboard' + (refresh?'&refresh=1':'');
+    const res = await fetch(url);
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error || 'API error');
+    state.data = data; render(data);
+    setMeta(`ข้อมูลวันที่ ${data.businessDate} • ${data.sourceWorkbook || ''} • generated ${data.generatedAt}${data.cached?' • cached':''}`);
+  }catch(err){ setMeta('โหลดไม่สำเร็จ: '+err.message); }
+}
+function render(data){renderSummary(data.summary||{});renderChecklist(data.dailyChecklist||[]);renderZones(data.sections.zoneCompliance.rows||[]);renderReorder(data.sections.reorder.needOrderRows||[]);renderRecon(data.sections.reconciliation.rows||[]);renderLocation(data.sections.stockByLocation.attentionRows||[]);renderQuality(data.sections.dataQuality.rows||[])}
+function renderSummary(s){$('summary').innerHTML=Object.keys(labels).map(k=>{const v=s[k]??0;const tone=(k.includes('missing')||k.includes('flagged')||k.includes('critical')||k.includes('issues'))&&v>0?'warn':(v>0&&k.includes('pending')?'warn':'ok');return `<div class="card metric ${tone}"><div class="label">${labels[k]}</div><div class="value">${esc(v)}</div></div>`}).join('')}
+function renderChecklist(rows){$('checklist').innerHTML=rows.length?rows.map(r=>`<div class="task"><span class="pill ${r.tone||''}">${esc(r.type)}</span><div><h3>${esc(r.title)}</h3><p>${esc(r.detail)}</p></div></div>`).join(''):'<div class="empty">วันนี้ยังไม่มี task ค้างจาก dashboard</div>'}
+function badge(status){let s=String(status||'').toUpperCase();let tone=s==='COMPLETE'||s==='OK'||s==='CLOSED'?'ok':(s==='CRITICAL'||s==='NEED_ORDER'?'danger':(s==='MISSING'||s==='PARTIAL'||s==='FLAG'||s==='PENDING'?'warn':''));return `<span class="pill ${tone}">${esc(s)}</span>`}
+function renderZones(rows){$('zones').innerHTML=rows.length?`<table><thead><tr><th>Zone</th><th>Status</th><th class="num">Counted</th><th class="num">Missing</th><th>Recon</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.zone_th||r.zone)}</td><td>${badge(r.status)}</td><td class="num">${esc(r.counted_items)}/${esc(r.expected_items)}</td><td class="num">${esc(r.missing_items)}</td><td>${r.reconcile_required?'Yes':'No'}${r.reconciliation_pending?` • pending ${esc(r.reconciliation_pending)}`:''}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี zone policy</div>'}
+function renderReorder(rows){$('tab-reorder').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Priority</th><th class="num">Current</th><th class="num">Min</th><th class="num">Target</th><th class="num">Suggested</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.item_name_th)}</td><td>${esc(r.priority)}</td><td class="num">${esc(r.current_stock)} ${esc(r.base_unit)}</td><td class="num">${esc(r.min_stock_qty)}</td><td class="num">${esc(r.target_stock_qty)}</td><td class="num">${esc(r.suggested_purchase_qty)} ${esc(r.purchase_unit)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มีรายการที่ต้องสั่งตาม Policy_Item</div>'}
+function renderRecon(rows){$('tab-recon').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Zone</th><th>Status</th><th>Review</th><th class="num">System</th><th class="num">Count</th><th class="num">Diff</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.item_name_th)}</td><td>${esc(r.stock_zone)}</td><td>${badge(r.status)}</td><td>${badge(r.review_status)}</td><td class="num">${esc(r.system_stock)}</td><td class="num">${esc(r.count_stock)}</td><td class="num">${esc(r.diff_qty)} ${esc(r.base_unit)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี reconciliation ที่ต้องตรวจ</div>'}
+function renderLocation(rows){$('tab-location').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Location</th><th>Status</th><th class="num">Stock</th><th>Map</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.item_name_th)}</td><td>${esc(r.stock_location_th)}</td><td>${badge(r.status)}</td><td class="num">${esc(r.current_stock)} ${esc(r.base_unit)}</td><td>${r.allowed_by_map?'OK':'Not in map'}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี stock location ที่ต้องดูเป็นพิเศษ</div>'}
+function renderQuality(rows){$('tab-quality').innerHTML=rows.length?`<table><thead><tr><th>Source</th><th>Status</th><th>Issue</th><th>Item/Zone</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.source)}</td><td>${badge(r.status)}</td><td>${esc(r.issue)}</td><td>${esc(r.item_key||r.zone)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่พบ data issue จาก audit sheets</div>'}
+
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('tab-'+btn.dataset.tab).classList.add('active')}));
+$('saveBtn').onclick=()=>{localStorage.setItem('JRT_OPS_API_URL',$('apiUrl').value.trim());load(true)};
+$('refreshBtn').onclick=()=>load(true);
+$('apiUrl').value=apiBase();
+load(false);
+</script>
 </body>
 </html>
