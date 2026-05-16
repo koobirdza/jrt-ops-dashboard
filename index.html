@@ -87,7 +87,7 @@
 </div>
 
 <script>
-const EMBEDDED_API_URL = ''; // ใส่ Web App URL ที่นี่เพื่อฝัง URL และซ่อนช่อง setup จากผู้จัดการ
+const EMBEDDED_API_URL = 'https://script.google.com/macros/s/AKfycbzoRojPhxH5318Iz3Kch1xeRWZoQkI3vCf6F1NW3XjYgUSXnYwWUKfuaLI96GLsM2Hf/exec'; // ใส่ Web App URL ที่นี่เพื่อฝัง URL และซ่อนช่อง setup จากผู้จัดการ
 const $=id=>document.getElementById(id); let DATA=null, ADJUST=null, AUDIT=null;
 function esc(v){return String(v??'').replace(/[&<>\"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]))}
 function num(v){const n=Number(v||0);return Number.isFinite(n)?n.toLocaleString('th-TH',{maximumFractionDigits:2}):'0'}
