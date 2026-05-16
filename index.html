@@ -3,101 +3,105 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JRT Ops Daily Control</title>
+  <title>JRT Ops Manager Control</title>
   <style>
-    :root{--bg:#f6f1ea;--card:#fffaf4;--ink:#241713;--muted:#7a6259;--line:#e6d8ca;--brand:#7f1d1d;--ok:#167047;--warn:#a15c00;--danger:#a11b1b;--soft:#fff3e6;--shadow:0 18px 55px rgba(70,35,20,.09)}
-    *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#fbf7f1,#f3e7db);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
-    .wrap{max-width:1280px;margin:0 auto;padding:24px}.top{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}.brand h1{margin:0;font-size:28px;letter-spacing:-.02em}.brand p{margin:6px 0 0;color:var(--muted)}
-    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.input{min-width:280px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:var(--ink)}.btn{border:0;border-radius:14px;background:var(--brand);color:#fff;padding:12px 16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}.btn.secondary{background:#fff;color:var(--brand);border:1px solid var(--line)}
-    .status{font-size:13px;color:var(--muted);margin-top:8px}.grid{display:grid;gap:14px}.cards{grid-template-columns:repeat(7,minmax(120px,1fr));margin:18px 0}.card{background:rgba(255,250,244,.92);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.metric .label{color:var(--muted);font-size:13px}.metric .value{font-size:30px;font-weight:850;margin-top:4px}.metric.warn .value{color:var(--warn)}.metric.danger .value{color:var(--danger)}.metric.ok .value{color:var(--ok)}
-    .main{grid-template-columns:1.05fr .95fr}.section h2{margin:0 0 12px;font-size:18px}.section .sub{color:var(--muted);font-size:13px;margin:-6px 0 12px}.list{display:grid;gap:10px}.task{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px}.pill{font-size:11px;font-weight:800;border-radius:999px;padding:5px 8px;background:#eee;color:#444;white-space:nowrap}.pill.warn{background:#fff3d6;color:#8a4d00}.pill.danger{background:#ffe0df;color:#9b1919}.pill.ok{background:#dff5ea;color:#146b43}.task h3{margin:0;font-size:15px}.task p{margin:4px 0 0;color:var(--muted);font-size:13px}
-    table{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:13px}th{text-align:left;color:var(--muted);font-size:12px;font-weight:700;padding:0 10px}td{background:#fff;padding:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}.num{text-align:right;font-variant-numeric:tabular-nums}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;color:var(--muted)}.tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}.panel{display:none}.panel.active{display:block}.empty{padding:20px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:#fff}.footer{margin-top:22px;color:var(--muted);font-size:12px;text-align:center}
-    @media(max-width:1050px){.cards{grid-template-columns:repeat(3,1fr)}.main{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.input{width:100%;min-width:0}}@media(max-width:640px){.cards{grid-template-columns:repeat(2,1fr)}.wrap{padding:14px}.card{padding:14px}.metric .value{font-size:24px}table{font-size:12px}}
+    :root{--bg:#f7f1e9;--card:#fffaf4;--ink:#251713;--muted:#7c665d;--line:#e7d8c8;--brand:#7f1d1d;--brand2:#a64222;--ok:#157347;--warn:#a15c00;--danger:#a11b1b;--blue:#295b8f;--soft:#fff3e4;--shadow:0 18px 55px rgba(70,35,20,.08)}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#fbf7f1,#f2e5d8);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+    .wrap{max-width:1420px;margin:0 auto;padding:22px}.top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px}.brand h1{margin:0;font-size:30px;letter-spacing:-.03em}.brand p{margin:6px 0 0;color:var(--muted)}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.input,select,textarea{border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:var(--ink);font:inherit}.input{min-width:310px}.btn{border:0;border-radius:14px;background:var(--brand);color:#fff;padding:12px 15px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}.btn.secondary{background:#fff;color:var(--brand);border:1px solid var(--line)}.btn.ghost{background:#fff7ed;color:var(--brand);border:1px solid #ead3bd}.btn:disabled{opacity:.55;cursor:not-allowed}.statusbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pill{font-size:12px;font-weight:850;border-radius:999px;padding:6px 9px;background:#eee;color:#444;display:inline-flex;gap:5px;align-items:center;white-space:nowrap}.pill.ok{background:#dcf5e8;color:var(--ok)}.pill.warn{background:#fff1cf;color:#8d4f00}.pill.danger{background:#ffe0df;color:var(--danger)}.pill.info{background:#e6eef8;color:var(--blue)}.pill.neutral{background:#eee;color:#555}
+    .grid{display:grid;gap:14px}.summary{grid-template-columns:repeat(8,minmax(120px,1fr));margin:16px 0}.card{background:rgba(255,250,244,.95);border:1px solid var(--line);border-radius:24px;padding:17px;box-shadow:var(--shadow)}.metric .label{font-size:12px;color:var(--muted);font-weight:750}.metric .value{font-size:30px;font-weight:900;margin:4px 0}.metric .note{font-size:12px;color:var(--muted)}.metric.warn .value{color:var(--warn)}.metric.danger .value{color:var(--danger)}.metric.ok .value{color:var(--ok)}
+    .layout{grid-template-columns:1.05fr .95fr}.section h2{margin:0 0 6px;font-size:19px}.sub{margin:0 0 12px;color:var(--muted);font-size:13px}.list{display:grid;gap:10px}.task,.row{border:1px solid var(--line);border-radius:18px;background:#fff;padding:12px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.task h3,.row h3{margin:0;font-size:15px}.task p,.row p{margin:4px 0 0;color:var(--muted);font-size:13px}.right{text-align:right;display:grid;gap:5px;justify-items:end}.empty{border:1px dashed var(--line);border-radius:18px;padding:18px;text-align:center;color:var(--muted);background:#fff}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;font-weight:850;cursor:pointer;color:var(--muted)}.tab.active{background:var(--brand);color:white;border-color:var(--brand)}.panel{display:none}.panel.active{display:block}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:13px}th{text-align:left;color:var(--muted);font-size:12px;padding:0 10px}td{background:#fff;padding:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top}td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}.num{text-align:right;font-variant-numeric:tabular-nums}.click{cursor:pointer}.click:hover{outline:2px solid #f0c7a5}.small{font-size:12px;color:var(--muted)}
+    .form{display:grid;gap:10px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.audit-box{max-height:560px;overflow:auto}.event{border-left:4px solid var(--line);padding:10px 12px;background:#fff;border-radius:14px;margin-bottom:8px}.event.COUNT{border-left-color:var(--blue)}.event.ISSUE{border-left-color:var(--danger)}.event.RECEIVE{border-left-color:var(--ok)}.event.ADJUST{border-left-color:var(--warn)}.footer{text-align:center;color:var(--muted);font-size:12px;margin:22px 0}
+    @media(max-width:1100px){.summary{grid-template-columns:repeat(4,1fr)}.layout,.two,.three{grid-template-columns:1fr}.top{flex-direction:column}.controls{justify-content:flex-start}.input{min-width:0;width:100%}}@media(max-width:640px){.wrap{padding:13px}.summary{grid-template-columns:repeat(2,1fr)}.metric .value{font-size:24px}.form-row{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <div class="brand">
-      <h1>JRT Ops Daily Control</h1>
-      <p>หน้าเดียวสำหรับ manager: นับสต๊อก / reorder / reconciliation / data health</p>
-      <div id="meta" class="status">ยังไม่ได้โหลดข้อมูล</div>
+      <h1>JRT Ops Manager Control</h1>
+      <p>สำหรับผู้จัดการ: คุมให้พนักงานใช้ RealStock ครบทุกวัน • ตรวจ diff • เตรียม order • ปิดงานประจำวัน</p>
+      <div class="statusbar"><span id="status" class="pill info">ยังไม่ได้โหลดข้อมูล</span><span id="source" class="pill neutral">source: -</span><span id="version" class="pill neutral">v4.8</span></div>
     </div>
     <div class="controls">
       <input id="apiUrl" class="input" placeholder="Apps Script Web App URL" />
-      <button class="btn" id="saveBtn">Save URL</button>
-      <button class="btn secondary" id="refreshBtn">Refresh</button>
+      <button class="btn" id="saveUrl">Save URL</button>
+      <button class="btn secondary" id="reload">Reload</button>
+      <button class="btn ghost" id="adminRefresh">Refresh Cache</button>
+      <button class="btn ghost" id="manualRebuild">Manual Rebuild</button>
     </div>
   </div>
 
-  <div id="summary" class="grid cards"></div>
+  <div id="summary" class="grid summary"></div>
 
-  <div class="grid main">
+  <div class="grid layout">
     <section class="card section">
-      <h2>Today Checklist</h2>
-      <p class="sub">สิ่งที่ควรจัดการวันนี้ เรียงจาก count → reconciliation → order → data issue</p>
+      <h2>Today Manager Checklist</h2>
+      <p class="sub">รายการที่ผู้จัดการต้องตาม/ตรวจ/ปิดงานวันนี้</p>
       <div id="checklist" class="list"></div>
     </section>
     <section class="card section">
-      <h2>Zone Compliance</h2>
-      <p class="sub">เช็กตาม Policy_Zone + Item_Location_Map</p>
-      <div id="zones"></div>
+      <h2>Close-of-Day Readiness</h2>
+      <p class="sub">ใช้เช็กก่อนปิดรอบวัน ว่ายังมี blocker อะไรค้างอยู่</p>
+      <div id="closeStatus" class="list"></div>
     </section>
   </div>
 
-  <div class="card section" style="margin-top:14px">
-    <div class="tabs">
-      <button class="tab active" data-tab="reorder">Reorder</button>
-      <button class="tab" data-tab="recon">Reconciliation</button>
-      <button class="tab" data-tab="location">Stock by Location</button>
-      <button class="tab" data-tab="quality">Data Quality</button>
-    </div>
-    <div id="tab-reorder" class="panel active"></div>
-    <div id="tab-recon" class="panel"></div>
-    <div id="tab-location" class="panel"></div>
-    <div id="tab-quality" class="panel"></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="count">Count Control</button>
+    <button class="tab" data-tab="recon">Reconciliation</button>
+    <button class="tab" data-tab="order">Reorder</button>
+    <button class="tab" data-tab="health">System / Data Health</button>
+    <button class="tab" data-tab="adjust">Adjust</button>
+    <button class="tab" data-tab="audit">Item Audit</button>
   </div>
 
-  <div class="footer">JRT Ops v4.6.0 • no external notification • dashboard-first workflow</div>
-</div>
-<script>
-const $ = (id)=>document.getElementById(id);
-const state = { data:null };
-const labels = {
-  zones_due:'Zones due', zones_missing:'Missing zones', reconciliation_pending:'Pending review', reconciliation_flagged:'Flagged diff', need_order_items:'Need order', critical_order_items:'A items', data_issues:'Data issues'
-};
-function esc(v){return String(v??'').replace(/[&<>"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]))}
-function apiBase(){return localStorage.getItem('JRT_OPS_API_URL') || ''}
-function setMeta(text){$('meta').textContent=text}
-async function load(refresh=false){
-  const base = apiBase();
-  if(!base){setMeta('ใส่ Apps Script Web App URL ก่อน'); return}
-  $('apiUrl').value = base;
-  setMeta('กำลังโหลดข้อมูล...');
-  try{
-    const url = base + (base.includes('?')?'&':'?') + 'action=dailyDashboard' + (refresh?'&refresh=1':'');
-    const res = await fetch(url);
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.error || 'API error');
-    state.data = data; render(data);
-    setMeta(`ข้อมูลวันที่ ${data.businessDate} • ${data.sourceWorkbook || ''} • generated ${data.generatedAt}${data.cached?' • cached':''}`);
-  }catch(err){ setMeta('โหลดไม่สำเร็จ: '+err.message); }
-}
-function render(data){renderSummary(data.summary||{});renderChecklist(data.dailyChecklist||[]);renderZones(data.sections.zoneCompliance.rows||[]);renderReorder(data.sections.reorder.needOrderRows||[]);renderRecon(data.sections.reconciliation.rows||[]);renderLocation(data.sections.stockByLocation.attentionRows||[]);renderQuality(data.sections.dataQuality.rows||[])}
-function renderSummary(s){$('summary').innerHTML=Object.keys(labels).map(k=>{const v=s[k]??0;const tone=(k.includes('missing')||k.includes('flagged')||k.includes('critical')||k.includes('issues'))&&v>0?'warn':(v>0&&k.includes('pending')?'warn':'ok');return `<div class="card metric ${tone}"><div class="label">${labels[k]}</div><div class="value">${esc(v)}</div></div>`}).join('')}
-function renderChecklist(rows){$('checklist').innerHTML=rows.length?rows.map(r=>`<div class="task"><span class="pill ${r.tone||''}">${esc(r.type)}</span><div><h3>${esc(r.title)}</h3><p>${esc(r.detail)}</p></div></div>`).join(''):'<div class="empty">วันนี้ยังไม่มี task ค้างจาก dashboard</div>'}
-function badge(status){let s=String(status||'').toUpperCase();let tone=s==='COMPLETE'||s==='OK'||s==='CLOSED'?'ok':(s==='CRITICAL'||s==='NEED_ORDER'?'danger':(s==='MISSING'||s==='PARTIAL'||s==='FLAG'||s==='PENDING'?'warn':''));return `<span class="pill ${tone}">${esc(s)}</span>`}
-function renderZones(rows){$('zones').innerHTML=rows.length?`<table><thead><tr><th>Zone</th><th>Status</th><th class="num">Counted</th><th class="num">Missing</th><th>Recon</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.zone_th||r.zone)}</td><td>${badge(r.status)}</td><td class="num">${esc(r.counted_items)}/${esc(r.expected_items)}</td><td class="num">${esc(r.missing_items)}</td><td>${r.reconcile_required?'Yes':'No'}${r.reconciliation_pending?` • pending ${esc(r.reconciliation_pending)}`:''}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี zone policy</div>'}
-function renderReorder(rows){$('tab-reorder').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Priority</th><th class="num">Current</th><th class="num">Min</th><th class="num">Target</th><th class="num">Suggested</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.item_name_th)}</td><td>${esc(r.priority)}</td><td class="num">${esc(r.current_stock)} ${esc(r.base_unit)}</td><td class="num">${esc(r.min_stock_qty)}</td><td class="num">${esc(r.target_stock_qty)}</td><td class="num">${esc(r.suggested_purchase_qty)} ${esc(r.purchase_unit)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มีรายการที่ต้องสั่งตาม Policy_Item</div>'}
-function renderRecon(rows){$('tab-recon').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Zone</th><th>Status</th><th>Review</th><th class="num">System</th><th class="num">Count</th><th class="num">Diff</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.item_name_th)}</td><td>${esc(r.stock_zone)}</td><td>${badge(r.status)}</td><td>${badge(r.review_status)}</td><td class="num">${esc(r.system_stock)}</td><td class="num">${esc(r.count_stock)}</td><td class="num">${esc(r.diff_qty)} ${esc(r.base_unit)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี reconciliation ที่ต้องตรวจ</div>'}
-function renderLocation(rows){$('tab-location').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Location</th><th>Status</th><th class="num">Stock</th><th>Map</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.item_name_th)}</td><td>${esc(r.stock_location_th)}</td><td>${badge(r.status)}</td><td class="num">${esc(r.current_stock)} ${esc(r.base_unit)}</td><td>${r.allowed_by_map?'OK':'Not in map'}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี stock location ที่ต้องดูเป็นพิเศษ</div>'}
-function renderQuality(rows){$('tab-quality').innerHTML=rows.length?`<table><thead><tr><th>Source</th><th>Status</th><th>Issue</th><th>Item/Zone</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.source)}</td><td>${badge(r.status)}</td><td>${esc(r.issue)}</td><td>${esc(r.item_key||r.zone)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่พบ data issue จาก audit sheets</div>'}
+  <section id="tab-count" class="panel active card section"><h2>Count Compliance Control</h2><p class="sub">คุมให้โซนที่ถึงรอบนับ ถูกนับครบใน RealStock</p><div id="zones"></div></section>
+  <section id="tab-recon" class="panel card section"><h2>Reconciliation Queue</h2><p class="sub">รายการ diff ที่ผู้จัดการต้องตรวจและปิดเคส</p><div id="recon"></div></section>
+  <section id="tab-order" class="panel card section"><h2>Reorder Queue</h2><p class="sub">รายการควรสั่งตาม Policy_Item และ stock ปัจจุบัน</p><div id="orders"></div></section>
+  <section id="tab-health" class="panel card section"><h2>System / Data Health</h2><p class="sub">เช็กชีท, policy, mapping, audit ที่อาจทำให้ระบบเพี้ยน</p><div id="health"></div></section>
+  <section id="tab-adjust" class="panel card section"><h2>Manager Adjust</h2><p class="sub">ใช้เฉพาะหลังตรวจแล้วเท่านั้น ไม่ใช้แทนรับ/เบิก/นับปกติ</p><div class="grid two"><div><div class="form"><input id="adjustSearch" class="input" placeholder="ค้นหา item ที่ต้องปรับยอด" /><select id="adjustItem"></select><div class="form-row"><select id="adjustMode"><option value="delta">เพิ่ม/ลดจากยอดเดิม</option><option value="absolute">ตั้งยอดใหม่</option></select><input id="adjustQty" class="input" type="number" step="0.001" placeholder="จำนวน" /></div><div class="form-row"><select id="adjustReason"></select><input id="adjustActor" class="input" placeholder="ชื่อผู้จัดการ/ผู้ปรับ" /></div><textarea id="adjustNote" rows="3" placeholder="หมายเหตุ / เหตุผลเพิ่มเติม"></textarea><button id="submitAdjust" class="btn">บันทึก Adjust</button><div id="adjustPreview" class="small"></div></div></div><div><h3>Recent Adjusts</h3><div id="recentAdjusts" class="list"></div></div></div></section>
+  <section id="tab-audit" class="panel card section"><h2>Item Audit Trail</h2><p class="sub">ดูประวัติ count / receive / issue / adjust ของ item เพื่อหาสาเหตุยอดเพี้ยน</p><div id="auditSelected" class="small">เลือก item จาก reconciliation, reorder, adjust หรือค้นหาในช่อง Adjust</div><div id="audit" class="audit-box"></div></section>
 
+  <div class="footer">JRT Ops v4.8.0 Manager Control • แยกบทบาทจาก RealStock และ Owner Dashboard</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id); let DATA=null, ADJUST=null, AUDIT=null;
+function esc(v){return String(v??'').replace(/[&<>\"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]))}
+function num(v){const n=Number(v||0);return Number.isFinite(n)?n.toLocaleString('th-TH',{maximumFractionDigits:2}):'0'}
+function base(){return localStorage.getItem('JRT_OPS_API_URL')||''}
+function adminToken(){let t=sessionStorage.getItem('JRT_OPS_ADMIN_TOKEN'); if(t)return t; t=prompt('กรอก JRT OPS ADMIN TOKEN'); if(t)sessionStorage.setItem('JRT_OPS_ADMIN_TOKEN',t); return t||''}
+function setStatus(t,tone='info'){ $('status').textContent=t; $('status').className='pill '+tone }
+function url(action,params={}){const b=base(); const u=new URL(b); u.searchParams.set('action',action); Object.entries(params).forEach(([k,v])=>{if(v!==undefined&&v!==null&&v!=='')u.searchParams.set(k,v)}); return u.toString()}
+function jsonp(action,params={},timeout=30000){return new Promise((res,rej)=>{const cb='__jrt_cb_'+Math.random().toString(36).slice(2); const s=document.createElement('script'); const timer=setTimeout(()=>done(new Error('timeout')),timeout); function done(e,v){clearTimeout(timer); s.remove(); try{delete window[cb]}catch(_){window[cb]=undefined} e?rej(e):res(v)} window[cb]=d=>done(null,d); s.onerror=()=>done(new Error('request failed')); s.src=url(action,{...params,callback:cb}); document.body.appendChild(s)})}
+async function api(action,params={},timeout){const data=await jsonp(action,params,timeout); if(!data||data.ok===false) throw new Error(data?.error||'API error'); return data}
+function tone(v,type){v=Number(v||0); if(!v)return 'ok'; return type==='danger'?'danger':'warn'}
+function renderSummary(){const s=DATA.summary||{}; const cards=[['zones_due','โซนที่ถึงรอบนับ','info'],['zones_missing','โซนนับไม่ครบ','warn'],['reconciliation_pending','Diff pending','warn'],['reconciliation_flagged','Flag/Critical diff','danger'],['need_order_items','ของควรสั่ง','warn'],['critical_order_items','Priority A','danger'],['data_issues','Data issue','warn'],['system_health_warnings','Health warning','danger']]; $('summary').innerHTML=cards.map(([k,l,t])=>`<article class="card metric ${tone(s[k],t)}"><div class="label">${l}</div><div class="value">${num(s[k])}</div><div class="note">${esc(k)}</div></article>`).join('')}
+function badge(s){s=String(s||'').toUpperCase(); let c=['OK','COMPLETE','CLOSED','NOT_DUE'].includes(s)?'ok':['CRITICAL','FAIL','MISSING'].includes(s)?'danger':['FLAG','PARTIAL','PENDING','WARN','NEED_ORDER'].includes(s)?'warn':'neutral'; return `<span class="pill ${c}">${esc(s||'-')}</span>`}
+function renderChecklist(){const rows=DATA.dailyChecklist||[]; $('checklist').innerHTML=rows.length?rows.map(r=>`<div class="task"><div><span class="pill ${r.tone||'neutral'}">${esc(r.type)}</span><h3>${esc(r.title)}</h3><p>${esc(r.detail)}</p></div><div class="right"><span class="small">${esc(r.key||'')}</span></div></div>`).join(''):'<div class="empty">วันนี้ยังไม่มีงานค้างจากระบบ</div>'}
+function renderCloseStatus(){const s=DATA.summary||{}; const blockers=[]; if(Number(s.zones_missing)>0)blockers.push(['COUNT',`ยังมีโซนที่นับไม่ครบ ${s.zones_missing} โซน`]); if(Number(s.reconciliation_pending)>0)blockers.push(['RECONCILE',`ยังมี diff pending ${s.reconciliation_pending} รายการ`]); if(Number(s.reconciliation_flagged)>0)blockers.push(['DIFF',`ยังมี flagged/critical diff ${s.reconciliation_flagged} รายการ`]); if(Number(s.system_health_warnings)>0)blockers.push(['HEALTH',`ยังมี health warning/fail ${s.system_health_warnings} รายการ`]); $('closeStatus').innerHTML=blockers.length?blockers.map(b=>`<div class="task"><div><span class="pill warn">${b[0]}</span><h3>${b[1]}</h3><p>ต้องจัดการก่อนปิดรอบวันนี้</p></div></div>`).join(''):'<div class="task"><div><span class="pill ok">READY</span><h3>พร้อมปิดงานวันนี้</h3><p>ไม่มี blocker สำคัญจาก daily dashboard</p></div></div>'}
+function renderZones(){const rows=DATA.sections?.zoneCompliance?.rows||[]; $('zones').innerHTML=rows.length?`<table><thead><tr><th>Zone</th><th>Status</th><th class="num">Counted</th><th class="num">Missing</th><th>Owner</th><th>Recon</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.zone_th||r.zone)}</td><td>${badge(r.status)}</td><td class="num">${num(r.counted_items)}/${num(r.expected_items)}</td><td class="num">${num(r.missing_items)}</td><td>${esc(r.owner_role||'-')}</td><td>${r.reconcile_required?'Required':'-'} ${r.reconciliation_pending?`• pending ${num(r.reconciliation_pending)}`:''}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี zone policy</div>'}
+function renderRecon(){const rows=DATA.sections?.reconciliation?.rows||[]; $('recon').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Zone</th><th>Status</th><th>Review</th><th class="num">System</th><th class="num">Count</th><th class="num">Diff</th><th>Action</th></tr></thead><tbody>${rows.map(r=>`<tr class="click" onclick="openAudit('${esc(r.item_key)}')"><td>${esc(r.item_name_th)}</td><td>${esc(r.stock_zone)}</td><td>${badge(r.status)}</td><td>${badge(r.review_status)}</td><td class="num">${num(r.system_stock)}</td><td class="num">${num(r.count_stock)}</td><td class="num">${num(r.diff_qty)} ${esc(r.base_unit)}</td><td><button class="btn secondary" onclick="event.stopPropagation();reviewRecon('${esc(r.reconcile_id)}','CLOSED')">Close</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มี reconciliation ที่ต้องตรวจ</div>'}
+function renderOrders(){const rows=DATA.sections?.reorder?.needOrderRows||[]; $('orders').innerHTML=rows.length?`<table><thead><tr><th>Item</th><th>Priority</th><th class="num">Current</th><th class="num">Min</th><th class="num">Target</th><th class="num">Suggested</th></tr></thead><tbody>${rows.map(r=>`<tr class="click" onclick="openAudit('${esc(r.item_key)}')"><td>${esc(r.item_name_th)}</td><td>${badge(r.priority)}</td><td class="num">${num(r.current_stock)} ${esc(r.base_unit)}</td><td class="num">${num(r.min_stock_qty)}</td><td class="num">${num(r.target_stock_qty)}</td><td class="num">${num(r.suggested_purchase_qty)} ${esc(r.purchase_unit)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มีรายการต้องสั่ง</div>'}
+function renderHealth(){const h=DATA.sections?.systemHealth||{}; const dq=DATA.sections?.dataQuality?.rows||[]; const rows=[...(h.rows||[]).map(r=>({source:r.source, status:r.status, issue:`${r.check}: ${r.issue}`, count:r.count})),...dq.map(r=>({source:r.source,status:r.status,issue:r.issue,count:1}))]; $('health').innerHTML=rows.length?`<table><thead><tr><th>Source</th><th>Status</th><th>Issue</th><th class="num">Count</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.source)}</td><td>${badge(r.status)}</td><td>${esc(r.issue)}</td><td class="num">${num(r.count)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">System health OK</div>'}
+async function loadAdjustData(){ADJUST=await api('dashboardAdjustData',{},30000); const reasons=ADJUST.adjustReasons||[]; $('adjustReason').innerHTML=reasons.map(r=>`<option value="${esc(r.code)}">${esc(r.label||r.code)}</option>`).join(''); fillAdjustItems(); renderRecentAdjusts()}
+function fillAdjustItems(){const q=($('adjustSearch').value||'').toLowerCase(); const items=(ADJUST?.adjustCatalog||[]).filter(i=>(i.searchText||`${i.itemKey} ${i.displayName}`).toLowerCase().includes(q)).slice(0,100); $('adjustItem').innerHTML=items.map(i=>`<option value="${esc(i.itemKey)}">${esc(i.displayName)} • stock ${num(i.currentStock)}</option>`).join(''); renderAdjustPreview()}
+function selectedAdjustItem(){const k=$('adjustItem').value; return (ADJUST?.adjustCatalog||[]).find(i=>i.itemKey===k)}
+function renderAdjustPreview(){const item=selectedAdjustItem(); if(!item){$('adjustPreview').textContent='ยังไม่ได้เลือก item';return} const qty=Number($('adjustQty').value||0); const mode=$('adjustMode').value; const after=mode==='absolute'?qty:Number(item.currentStock||0)+qty; $('adjustPreview').textContent=`${item.displayName} | stock ก่อน ${num(item.currentStock)} → หลัง ${num(after)} ${item.unit||''}`}
+function renderRecentAdjusts(){const rows=ADJUST?.recentAdjusts||[]; $('recentAdjusts').innerHTML=rows.length?rows.slice(0,20).map(r=>`<div class="row click" onclick="openAudit('${esc(r.itemKey)}')"><div><h3>${esc(r.itemName)}</h3><p>${esc(r.reasonLabel||r.reasonCode)} • ${esc(r.actor||'-')} • ${esc(r.timestamp)}</p></div><div class="right"><span class="pill warn">${esc(r.adjustMode)}</span><strong>${num(r.beforeStock)} → ${num(r.afterStock)}</strong></div></div>`).join(''):'<div class="empty">ยังไม่มี recent adjust</div>'}
+async function submitAdjust(){const item=selectedAdjustItem(); if(!item)return; const token=adminToken(); if(!token)return; try{setStatus('กำลังบันทึก adjust...','info'); await api('createAdjust',{token,itemKey:item.itemKey,adjustMode:$('adjustMode').value,qty:$('adjustQty').value,reasonCode:$('adjustReason').value,note:$('adjustNote').value,actor:$('adjustActor').value||'manager'},30000); $('adjustQty').value=''; $('adjustNote').value=''; await load(true); await loadAdjustData(); await openAudit(item.itemKey,true); setStatus('บันทึก adjust สำเร็จ','ok')}catch(e){setStatus('adjust ไม่สำเร็จ: '+e.message,'danger')}};
+async function openAudit(itemKey,silent=false){if(!itemKey)return; try{if(!silent)setStatus('กำลังโหลด audit...','info'); AUDIT=await api('itemAuditTrail',{itemKey,limit:80},30000); $('auditSelected').textContent=`${AUDIT.item?.displayName||AUDIT.item?.itemName||itemKey} • current stock ${num(AUDIT.summary?.currentStockEffective)}`; renderAudit(); document.querySelector('[data-tab="audit"]').click(); if(!silent)setStatus('โหลด audit สำเร็จ','ok')}catch(e){setStatus('โหลด audit ไม่สำเร็จ: '+e.message,'warn')}}
+function renderAudit(){const rows=AUDIT?.events||[]; $('audit').innerHTML=rows.length?rows.map(e=>`<div class="event ${esc(e.eventType)}"><div><span class="pill info">${esc(e.eventType)}</span> <strong>${esc(e.display||'')}</strong></div><div class="small">${esc(e.timestamp)} • ${esc(e.actor||'-')} • ${esc(e.zone||'-')} ${e.note?`• ${esc(e.note)}`:''}</div></div>`).join(''):'<div class="empty">ยังไม่มี event</div>'}
+async function reviewRecon(id,status){const token=adminToken(); if(!token)return; const by=prompt('ชื่อผู้ตรวจ/ผู้ปิดเคส','manager')||'manager'; try{await api('updateReconciliationReview',{token,reconcile_id:id,review_status:status,reviewed_by:by,reason:'manager reviewed',action_note:'closed from JRT Ops'},30000); await load(true); setStatus('ปิด reconciliation แล้ว','ok')}catch(e){setStatus('ปิด reconciliation ไม่สำเร็จ: '+e.message,'danger')}}
+async function load(refresh=false){try{const b=base(); if(!b){setStatus('ใส่ Apps Script Web App URL ก่อน','warn');return} $('apiUrl').value=b; setStatus('กำลังโหลด daily control...','info'); DATA=await api('dailyDashboard',refresh?{refresh:1}:{},30000); $('source').textContent=`source: ${DATA.cached?'cache':'live'} • ${DATA.businessDate||''}`; $('version').textContent=DATA.appVersion||'v4.8'; renderSummary(); renderChecklist(); renderCloseStatus(); renderZones(); renderRecon(); renderOrders(); renderHealth(); await loadAdjustData().catch(e=>setStatus('โหลด adjust module ไม่สำเร็จ: '+e.message,'warn')); setStatus(`พร้อมใช้งาน • generated ${DATA.generatedAt||''}`,'ok')}catch(e){setStatus('โหลดไม่สำเร็จ: '+e.message,'danger')}}
+async function adminRefresh(){const token=adminToken(); if(!token)return; try{setStatus('กำลัง refresh cache...','info'); await api('adminRefreshDashboard',{token},30000); await load(true); setStatus('refresh cache สำเร็จ','ok')}catch(e){setStatus('refresh ไม่สำเร็จ: '+e.message,'danger')}}
+async function manualRebuild(){const token=adminToken(); if(!token)return; if(!confirm('ยืนยันคำนวณสต๊อกล่าสุดแบบ manual?'))return; try{setStatus('กำลัง manual rebuild...','info'); const r=await api('adminManualRebuild',{token},60000); alert(`${r.popupTitle||'Manual rebuild สำเร็จ'}\n${r.popupMessage||''}`); await load(true); setStatus('manual rebuild สำเร็จ','ok')}catch(e){setStatus('manual rebuild ไม่สำเร็จ: '+e.message,'danger')}}
+window.openAudit=openAudit; window.reviewRecon=reviewRecon;
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('tab-'+btn.dataset.tab).classList.add('active')}));
-$('saveBtn').onclick=()=>{localStorage.setItem('JRT_OPS_API_URL',$('apiUrl').value.trim());load(true)};
-$('refreshBtn').onclick=()=>load(true);
-$('apiUrl').value=apiBase();
-load(false);
+$('saveUrl').onclick=()=>{localStorage.setItem('JRT_OPS_API_URL',$('apiUrl').value.trim());load(true)}; $('reload').onclick=()=>load(true); $('adminRefresh').onclick=adminRefresh; $('manualRebuild').onclick=manualRebuild; $('adjustSearch').oninput=fillAdjustItems; ['adjustItem','adjustMode','adjustQty'].forEach(id=>$(id).addEventListener('input',renderAdjustPreview)); $('submitAdjust').onclick=submitAdjust; $('apiUrl').value=base(); load(false);
 </script>
 </body>
 </html>
