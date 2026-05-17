@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JRT Ops Manager Count Control v4.8.2</title>
+  <title>JRT Ops Manager Count Control v4.8.3</title>
   <style>
     :root{--bg:#f7f1e9;--card:#fffaf4;--ink:#251713;--muted:#7c665d;--line:#e7d8c8;--brand:#7f1d1d;--brand2:#a64222;--ok:#157347;--warn:#a15c00;--danger:#a11b1b;--blue:#295b8f;--soft:#fff3e4;--shadow:0 18px 55px rgba(70,35,20,.08)}
     *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#fbf7f1,#f2e5d8);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -24,7 +24,7 @@
     <div class="brand">
       <h1>JRT Ops Manager Count Control</h1>
       <p>สำหรับผู้จัดการ: คุมให้พนักงานใช้ RealStock ครบทุกวัน • ตรวจ diff • เตรียม order • ปิดงานประจำวัน</p>
-      <div class="statusbar"><span id="status" class="pill info">ยังไม่ได้โหลดข้อมูล</span><span id="source" class="pill neutral">source: -</span><span id="version" class="pill neutral">v4.8.2</span></div>
+      <div class="statusbar"><span id="status" class="pill info">ยังไม่ได้โหลดข้อมูล</span><span id="source" class="pill neutral">source: -</span><span id="version" class="pill neutral">v4.8.3</span></div>
     </div>
     <div class="controls">
       <button class="btn secondary" id="reload">Reload</button>
@@ -40,24 +40,11 @@
 
   <div id="summary" class="grid summary"></div>
 
-  <section class="card section">
-    <h2>ตรวจส่วนต่างผิดปกติ</h2>
-    <p class="sub">รายการที่ผู้จัดการต้องตรวจหลังพนักงานนับ เช่น pending / flag / critical diff</p>
-    <div id="exceptionChecklist" class="list"></div>
+  <section class="card section" style="margin-top:14px">
+    <h2>Close-of-Day Readiness</h2>
+    <p class="sub">ใช้เช็กก่อนปิดรอบวัน ว่ายังมี blocker อะไรค้างอยู่</p>
+    <div id="closeStatus" class="list"></div>
   </section>
-
-  <div class="grid layout" style="margin-top:14px">
-    <section class="card section">
-      <h2>Close-of-Day Readiness</h2>
-      <p class="sub">ใช้เช็กก่อนปิดรอบวัน ว่ายังมี blocker อะไรค้างอยู่</p>
-      <div id="closeStatus" class="list"></div>
-    </section>
-    <section class="card section">
-      <h2>Manager Focus</h2>
-      <p class="sub">โฟกัสหลักวันนี้: นับให้ครบ → ตรวจ diff → เตรียม order → แก้ data issue</p>
-      <div id="managerFocus" class="list"></div>
-    </section>
-  </div>
 
   <div class="tabs">
     <button class="tab active" data-tab="count">Count Control</button>
@@ -94,8 +81,8 @@ async function api(action,params={},timeout){const data=await jsonp(action,param
 function tone(v,type){v=Number(v||0); if(!v)return 'ok'; return type==='danger'?'danger':'warn'}
 function renderSummary(){const s=DATA.summary||{}; const cards=[['count_completion_pct','เช็คนับครบ %','info'],['count_missing_items','รายการยังไม่นับ','warn'],['reconciliation_pending','Diff pending','warn'],['reconciliation_flagged','Flag/Critical diff','danger'],['need_order_items','ของควรสั่ง','warn'],['critical_order_items','Priority A','danger'],['data_issues','Data issue','warn'],['system_health_warnings','Health warning','danger']]; $('summary').innerHTML=cards.map(([k,l,t])=>`<article class="card metric ${tone(k==='count_completion_pct'?(100-Number(s[k]||0)):s[k],t)}"><div class="label">${l}</div><div class="value">${k==='count_completion_pct'?num(s[k])+'%':num(s[k])}</div><div class="note">${esc(k)}</div></article>`).join('')}
 function badge(s){s=String(s||'').toUpperCase(); let c=['OK','COMPLETE','CLOSED','NOT_DUE'].includes(s)?'ok':['CRITICAL','FAIL','MISSING'].includes(s)?'danger':['FLAG','PARTIAL','PENDING','WARN','NEED_ORDER'].includes(s)?'warn':'neutral'; return `<span class="pill ${c}">${esc(s||'-')}</span>`}
-function renderChecklist(){const rows=(DATA.dailyChecklist||[]).filter(r=>r.type!=='COUNT'); $('exceptionChecklist').innerHTML=rows.length?rows.map(r=>`<div class="task"><div><span class="pill ${r.tone||'neutral'}">${esc(r.type)}</span><h3>${esc(r.title)}</h3><p>${esc(r.detail)}</p></div><div class="right"><span class="small">${esc(r.key||'')}</span></div></div>`).join(''):'<div class="empty">ตอนนี้ยังไม่มีส่วนต่างผิดปกติหรือรายการต้องตรวจเร่งด่วน</div>'; renderManagerFocus(rows)}
-function renderManagerFocus(rows){const s=DATA.summary||{}; const focus=[]; if(Number(s.count_missing_items)>0)focus.push(['COUNT',`ยังไม่นับ ${num(s.count_missing_items)} รายการ`,'เปิดแท็บ Stock Count Control เพื่อตามรายการ']); if(Number(s.reconciliation_pending)>0)focus.push(['RECONCILE',`ตรวจ diff pending ${num(s.reconciliation_pending)} รายการ`,'เปิดแท็บ Reconciliation']); if(Number(s.critical_order_items)>0)focus.push(['ORDER',`ของ Priority A ต้องสั่ง ${num(s.critical_order_items)} รายการ`,'เปิดแท็บ Reorder']); if(Number(s.system_health_warnings)>0)focus.push(['HEALTH',`ระบบมี warning/fail ${num(s.system_health_warnings)} รายการ`,'เปิดแท็บ System / Data Health']); $('managerFocus').innerHTML=focus.length?focus.map(f=>`<div class="task"><div><span class="pill warn">${f[0]}</span><h3>${f[1]}</h3><p>${f[2]}</p></div></div>`).join(''):'<div class="empty">ไม่มี focus ด่วนเพิ่มเติม</div>'}
+function renderChecklist(){/* removed duplicate top exception/checklist section; details live in Count Control and Reconciliation tabs */}
+function renderManagerFocus(){/* removed duplicate Manager Focus section */}
 function renderCloseStatus(){const s=DATA.summary||{}; const blockers=[]; if(Number(s.count_missing_items)>0)blockers.push(['COUNT',`ยังมีรายการต้องนับ ${num(s.count_missing_items)} รายการ`]); if(Number(s.reconciliation_pending)>0)blockers.push(['RECONCILE',`ยังมี diff pending ${num(s.reconciliation_pending)} รายการ`]); if(Number(s.reconciliation_flagged)>0)blockers.push(['DIFF',`ยังมี flagged/critical diff ${num(s.reconciliation_flagged)} รายการ`]); if(Number(s.system_health_warnings)>0)blockers.push(['HEALTH',`ยังมี health warning/fail ${num(s.system_health_warnings)} รายการ`]); $('closeStatus').innerHTML=blockers.length?blockers.map(b=>`<div class="task"><div><span class="pill warn">${b[0]}</span><h3>${b[1]}</h3><p>ต้องจัดการก่อนปิดรอบวันนี้</p></div></div>`).join(''):'<div class="task"><div><span class="pill ok">READY</span><h3>พร้อมปิดงานวันนี้</h3><p>ไม่มี blocker สำคัญจาก daily dashboard</p></div></div>'}
 function statusLabel(st){st=String(st||'').toUpperCase(); return st==='COUNTED'?'นับแล้ว':st==='MISSING'?'ยังไม่นับ':st==='NOT_DUE'?'ยังไม่ถึงรอบ':st}
 function renderCountGroup(g, compact=false){const pct=g.expected_items?Math.round((g.counted_items/g.expected_items)*1000)/10:100; const sub=(g.subGroups||[]).map(sg=>`<div class="subgroup"><div class="subgroup-title">${esc(sg.label)} • ${num(sg.counted_items)}/${num(sg.expected_items)}</div><div class="item-rail">${(sg.items||[]).map(it=>{const event=[it.event_time,it.event_employee].filter(Boolean).join(' • ');return `<div class="item-card ${esc(it.status)}" title="${esc(it.status)}"><span class="status-dot" aria-hidden="true"></span><h4>${esc(it.item_name_th)}</h4><p>${esc(it.brand&&it.brand!=='-'?it.brand:'-')} • ${esc(it.unit||'-')}</p><p class="latest-qty">${esc(it.latest_qty_display||'-')}</p><p class="event-line">${esc(event||'-')}</p></div>`}).join('')}</div></div>`).join(''); return `<div class="count-group"><div class="count-head"><div><h3>${esc(g.zone_th||g.zone)}</h3><p class="sub">${esc(g.frequency)} ${g.due_today?'• ถึงรอบวันนี้':'• ยังไม่ถึงรอบ'} ${g.owner_role?'• '+esc(g.owner_role):''}</p><div class="count-progress"><span style="width:${Math.min(100,pct)}%"></span></div></div><div class="right"><strong>${num(g.counted_items)}/${num(g.expected_items)}</strong><span class="pill ${g.missing_items?'warn':'ok'}">${num(pct)}%</span></div></div>${sub||'<div class="empty">ไม่มี item ในกลุ่มนี้</div>'}</div>`}
